@@ -33,3 +33,16 @@ Abre `index.html` con un editor de texto y busca la sección «LISTAS DE PALABRA
 Hay cinco listas: `SUSTANTIVOS`, `ACCIONES`, `LUGARES`, `ESTILOS` y `PERSONALIDADES`.
 En los sustantivos, `g` indica el género (`"m"` o `"f"`) para que el estilo concuerde
 («calavera malvada», «gato malvado»).
+
+## Tenerla en el móvil
+
+1. En GitHub, entra en el repositorio → **Settings** → **Pages**.
+2. En *Source* elige **Deploy from a branch**, selecciona la rama
+   `claude/drawing-prompt-generator-1sg8a5` y la carpeta `/ (root)`, y pulsa **Save**.
+3. En un par de minutos la app estará en
+   <https://rodrigocasburon-dot.github.io/promts-dibujo-/>
+4. Abre esa dirección en el móvil y añádela a la pantalla de inicio:
+   - **iPhone (Safari)**: botón Compartir → *Añadir a pantalla de inicio*.
+   - **Android (Chrome)**: menú ⋮ → *Añadir a pantalla de inicio* / *Instalar app*.
+
+Cada vez que se suban cambios al repositorio, la app del móvil se actualiza sola.
