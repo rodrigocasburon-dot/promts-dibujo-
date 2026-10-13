@@ -1,0 +1,51 @@
+:root {
+  --fondo: #faf7f2; --texto: #2b2620; --suave: #8a8073;
+  --acento: #e2584a; --tarjeta: #fff; --borde: #e6dfd4;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --fondo: #1d1b19; --texto: #f1ece4; --suave: #a59c90;
+          --acento: #ff7a6b; --tarjeta: #282522; --borde: #3a3632; }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: system-ui, sans-serif;
+  background: var(--fondo); color: var(--texto);
+}
+header, main { max-width: 640px; margin: 0 auto; padding: 16px; }
+h1 { margin: 0 0 12px; font-size: 1.6rem; }
+h2 { font-size: 1.1rem; margin-top: 28px; }
+nav { display: flex; gap: 8px; }
+.tab {
+  flex: 1; padding: 10px; border: 1px solid var(--borde); border-radius: 8px;
+  background: var(--tarjeta); color: var(--texto); font-size: 1rem; cursor: pointer;
+}
+.tab.activa { background: var(--acento); color: #fff; border-color: var(--acento); }
+.tab span { font-size: .8rem; opacity: .8; }
+fieldset { border: 1px solid var(--borde); border-radius: 8px; margin: 0 0 12px; padding: 8px 12px; }
+legend { font-weight: 600; padding: 0 4px; }
+fieldset label, .interruptor { display: block; padding: 6px 0; cursor: pointer; }
+.interruptor { margin-bottom: 12px; }
+small { color: var(--suave); }
+.tarjeta {
+  background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 12px;
+  padding: 32px 16px; text-align: center; min-height: 140px;
+}
+#prompt { font-size: 1.8rem; font-weight: 700; margin: 0; }
+#prompt::first-letter { text-transform: uppercase; }
+#aviso { color: var(--suave); font-size: .9rem; margin: 8px 0 0; }
+.acciones { display: flex; gap: 8px; margin-top: 12px; }
+.acciones button {
+  flex: 1; padding: 14px; font-size: 1.05rem; border-radius: 8px; cursor: pointer;
+  border: 1px solid var(--borde); background: var(--tarjeta); color: var(--texto);
+}
+.acciones .principal { background: var(--acento); color: #fff; border-color: var(--acento); flex: 2; }
+.acciones button:disabled { opacity: .5; cursor: default; }
+.lista { list-style: none; padding: 0; margin: 0; }
+.lista li {
+  display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  padding: 10px 0; border-bottom: 1px solid var(--borde);
+}
+.lista li span::first-letter { text-transform: uppercase; }
+.lista button { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--acento); }
+.ayuda { color: var(--suave); }
+.oculta { display: none; }

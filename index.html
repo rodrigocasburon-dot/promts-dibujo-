@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Prompts de Dibujo</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>✏️ Prompts de Dibujo</h1>
+    <nav>
+      <button class="tab activa" data-vista="generar">Generar</button>
+      <button class="tab" data-vista="favoritos">Favoritos <span id="contador-fav">0</span></button>
+    </nav>
+  </header>
+
+  <main>
+    <section id="vista-generar" class="vista">
+      <fieldset>
+        <legend>Nivel del prompt</legend>
+        <label><input type="radio" name="nivel" value="1" checked> Palabra <small>(más libre)</small></label>
+        <label><input type="radio" name="nivel" value="2"> Palabra + acción</label>
+        <label><input type="radio" name="nivel" value="3"> Palabra + acción + lugar <small>(más guiado)</small></label>
+      </fieldset>
+
+      <label class="interruptor">
+        <input type="checkbox" id="con-estilo"> Añadir estilo <small>(ej. "calavera kawaii")</small>
+      </label>
+
+      <fieldset>
+        <legend>Generador</legend>
+        <label><input type="radio" name="modo" value="todo" checked> Todo</label>
+        <label><input type="radio" name="modo" value="favoritos"> Mi zona <small>(a partir de mis favoritos)</small></label>
+        <label><input type="radio" name="modo" value="reto"> Reto <small>(evita lo que suelo dibujar)</small></label>
+      </fieldset>
+
+      <div class="tarjeta">
+        <p id="prompt">Pulsa «Nuevo prompt»</p>
+        <p id="aviso"></p>
+      </div>
+
+      <div class="acciones">
+        <button id="btn-generar" class="principal">🎲 Nuevo prompt</button>
+        <button id="btn-fav" disabled>☆ Favorito</button>
+      </div>
+
+      <h2>Historial</h2>
+      <ul id="historial" class="lista"></ul>
+    </section>
+
+    <section id="vista-favoritos" class="vista oculta">
+      <p class="ayuda">Los elementos de tus favoritos alimentan el generador «Mi zona», y el generador «Reto» los evita.</p>
+      <ul id="lista-favoritos" class="lista"></ul>
+    </section>
+  </main>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
