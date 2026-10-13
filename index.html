@@ -4,7 +4,62 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Prompts de Dibujo</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+:root {
+  --fondo: #faf7f2; --texto: #2b2620; --suave: #8a8073;
+  --acento: #e2584a; --tarjeta: #fff; --borde: #e6dfd4;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --fondo: #1d1b19; --texto: #f1ece4; --suave: #a59c90;
+          --acento: #ff7a6b; --tarjeta: #282522; --borde: #3a3632; }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: system-ui, sans-serif;
+  background: var(--fondo); color: var(--texto);
+}
+header, main { max-width: 640px; margin: 0 auto; padding: 16px; }
+h1 { margin: 0 0 12px; font-size: 1.6rem; }
+h2 { font-size: 1.1rem; margin-top: 28px; }
+nav { display: flex; gap: 8px; }
+.tab {
+  flex: 1; padding: 10px; border: 1px solid var(--borde); border-radius: 8px;
+  background: var(--tarjeta); color: var(--texto); font-size: 1rem; cursor: pointer;
+}
+.tab.activa { background: var(--acento); color: #fff; border-color: var(--acento); }
+.tab span { font-size: .8rem; opacity: .8; }
+fieldset { border: 1px solid var(--borde); border-radius: 8px; margin: 0 0 12px; padding: 8px 12px; }
+legend { font-weight: 600; padding: 0 4px; }
+fieldset label, .interruptor { display: block; padding: 6px 0; cursor: pointer; }
+.interruptor { margin-bottom: 12px; }
+small { color: var(--suave); }
+.tarjeta {
+  background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 12px;
+  padding: 32px 16px; text-align: center; min-height: 140px;
+}
+#prompt { font-size: 1.8rem; font-weight: 700; margin: 0; }
+#prompt::first-letter { text-transform: uppercase; }
+#aviso { color: var(--suave); font-size: .9rem; margin: 8px 0 0; }
+.acciones { display: flex; gap: 8px; margin-top: 12px; }
+.acciones button {
+  min-width: 0;
+  flex: 1; padding: 14px; font-size: 1.05rem; border-radius: 8px; cursor: pointer;
+  border: 1px solid var(--borde); background: var(--tarjeta); color: var(--texto);
+}
+.acciones .principal { background: var(--acento); color: #fff; border-color: var(--acento); flex: 2; }
+#btn-no { flex: 0 0 60px; }
+.acciones button:disabled { opacity: .5; cursor: default; }
+.lista { list-style: none; padding: 0; margin: 0; }
+.lista li {
+  display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  padding: 10px 0; border-bottom: 1px solid var(--borde);
+}
+.lista li span::first-letter { text-transform: uppercase; }
+.lista li div { display: flex; gap: 4px; flex-shrink: 0; }
+.lista button { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--acento); }
+.ayuda { color: var(--suave); }
+.oculta { display: none; }
+  </style>
 </head>
 <body>
   <header>
@@ -24,9 +79,11 @@
         <label><input type="radio" name="nivel" value="3"> Palabra + acción + lugar <small>(más guiado)</small></label>
       </fieldset>
 
-      <label class="interruptor">
-        <input type="checkbox" id="con-estilo"> Añadir estilo <small>(ej. "calavera kawaii")</small>
-      </label>
+      <fieldset>
+        <legend>Extras</legend>
+        <label><input type="checkbox" id="con-estilo"> Estilo <small>(ej. "calavera kawaii")</small></label>
+        <label><input type="checkbox" id="con-personalidad"> Personalidad <small>(ej. "mesa malvada")</small></label>
+      </fieldset>
 
       <fieldset>
         <legend>Generador</legend>
@@ -43,6 +100,7 @@
       <div class="acciones">
         <button id="btn-generar" class="principal">🎲 Nuevo prompt</button>
         <button id="btn-fav" disabled>☆ Favorito</button>
+        <button id="btn-no" disabled>👎</button>
       </div>
 
       <h2>Historial</h2>
@@ -52,10 +110,334 @@
     <section id="vista-favoritos" class="vista oculta">
       <p class="ayuda">Los elementos de tus favoritos alimentan el generador «Mi zona», y el generador «Reto» los evita.</p>
       <ul id="lista-favoritos" class="lista"></ul>
+
+      <h2>Combinaciones descartadas 👎</h2>
+      <p class="ayuda">Estas combinaciones de palabra + acción + lugar no volverán a salir. Las palabras sueltas sí pueden seguir apareciendo.</p>
+      <ul id="lista-descartados" class="lista"></ul>
     </section>
   </main>
 
-  <script src="data.js"></script>
-  <script src="app.js"></script>
+  <script>
+// =====================================================================
+//  LISTAS DE PALABRAS  (puedes editarlas libremente)
+// =====================================================================
+// Listas de elementos para generar prompts.
+// Puedes añadir o quitar elementos libremente.
+// Sustantivos: g = género ("m" masculino, "f" femenino) para concordar con el estilo.
+
+var SUSTANTIVOS = [
+  { t: "calavera", g: "f" }, { t: "gato", g: "m" }, { t: "dragón", g: "m" },
+  { t: "bruja", g: "f" }, { t: "robot", g: "m" }, { t: "seta", g: "f" },
+  { t: "astronauta", g: "m" }, { t: "pulpo", g: "m" }, { t: "tetera", g: "f" },
+  { t: "caballero", g: "m" }, { t: "sirena", g: "f" }, { t: "zorro", g: "m" },
+  { t: "fantasma", g: "m" }, { t: "búho", g: "m" }, { t: "planta carnívora", g: "f" },
+  { t: "dinosaurio", g: "m" }, { t: "abuela", g: "f" }, { t: "pez globo", g: "m" },
+  { t: "vampiro", g: "m" }, { t: "rana", g: "f" }, { t: "faro", g: "m" },
+  { t: "mago", g: "m" }, { t: "ballena", g: "f" }, { t: "cactus", g: "m" },
+  { t: "samurái", g: "m" }, { t: "mariposa", g: "f" }, { t: "oso", g: "m" },
+  { t: "bicicleta", g: "f" }, { t: "cuervo", g: "m" }, { t: "princesa", g: "f" },
+  { t: "esqueleto", g: "m" }, { t: "caracol", g: "m" }, { t: "lámpara", g: "f" },
+  { t: "pirata", g: "m" }, { t: "conejo", g: "m" }, { t: "medusa", g: "f" },
+  { t: "golem", g: "m" }, { t: "tortuga", g: "f" }, { t: "payaso", g: "m" },
+  { t: "zapato", g: "m" }, { t: "ciervo", g: "m" }, { t: "guerrera", g: "f" },
+  { t: "alien", g: "m" }, { t: "lobo", g: "m" }, { t: "casa", g: "f" },
+  { t: "unicornio", g: "m" }, { t: "abeja", g: "f" }, { t: "minotauro", g: "m" },
+  { t: "taza de café", g: "f" }, { t: "perro", g: "m" }, { t: "hada", g: "f" },
+  { t: "cocinero", g: "m" }, { t: "serpiente", g: "f" }, { t: "árbol", g: "m" },
+  { t: "momia", g: "f" }, { t: "pingüino", g: "m" }, { t: "nube", g: "f" },
+  { t: "ninja", g: "m" }, { t: "manzana", g: "f" }, { t: "demonio", g: "m" },
+  { t: "jirafa", g: "f" }, { t: "anciano", g: "m" }, { t: "llave", g: "f" },
+  { t: "cangrejo", g: "m" }, { t: "gárgola", g: "f" }, { t: "tren", g: "m" },
+  { t: "sapo", g: "m" }, { t: "luna", g: "f" }, { t: "escarabajo", g: "m" },
+];
+
+var ACCIONES = [
+  "bailando", "durmiendo", "leyendo un libro", "cocinando", "pescando",
+  "volando", "llorando", "riéndose", "tocando la guitarra", "corriendo",
+  "escondiéndose", "pintando un cuadro", "tomando té", "peleando",
+  "meditando", "saltando", "comiendo ramen", "nadando", "escalando",
+  "cantando", "tejiendo", "jugando al ajedrez", "haciendo yoga",
+  "regando plantas", "patinando", "estornudando", "abrazando a alguien",
+  "lanzando un hechizo", "conduciendo", "haciendo la compra", "bostezando",
+  "construyendo algo", "persiguiendo una mariposa", "enfadándose",
+  "haciendo una foto", "escribiendo una carta", "comiendo helado",
+  "esquiando", "tirándose de cabeza", "barriendo", "flotando",
+  "tocando la batería", "haciendo malabares", "derritiéndose", "huyendo",
+];
+
+var LUGARES = [
+  "en una biblioteca", "en el espacio", "bajo el mar", "en un desierto",
+  "en una cocina", "en un bosque encantado", "en una ciudad futurista",
+  "en un cementerio", "en la cima de una montaña", "en un tren",
+  "en una cafetería", "en un castillo", "dentro de una cueva",
+  "en una playa", "en el metro", "en un mercado", "en una nave espacial",
+  "en un jardín japonés", "sobre un tejado", "en un supermercado",
+  "en un volcán", "en una feria", "en un pantano", "en una iglesia en ruinas",
+  "en un barco pirata", "en una habitación desordenada", "en la nieve",
+  "dentro de una botella", "en un laboratorio", "en un circo",
+  "en un parque bajo la lluvia", "en una gasolinera de noche",
+  "en un museo", "en una isla diminuta", "en un ascensor",
+  "en un campo de girasoles", "en una oficina", "en una selva",
+];
+
+// Estilos / objetivos: [masculino, femenino]. Si es invariable, repite la palabra.
+var ESTILOS = [
+  ["kawaii", "kawaii"], ["steampunk", "steampunk"], ["cyberpunk", "cyberpunk"],
+  ["gótico", "gótica"], ["gigante", "gigante"], ["diminuto", "diminuta"],
+  ["mecánico", "mecánica"], ["de cristal", "de cristal"], ["zombi", "zombi"],
+  ["medieval", "medieval"], ["anciano", "anciana"], ["bebé", "bebé"],
+  ["en llamas", "en llamas"], ["hecho de nubes", "hecha de nubes"],
+  ["de papel", "de papel"], ["mutante", "mutante"], ["elegante", "elegante"],
+  ["triste", "triste"], ["furioso", "furiosa"], ["con tentáculos", "con tentáculos"],
+  ["de chocolate", "de chocolate"], ["pixelado", "pixelada"],
+  ["art nouveau", "art nouveau"], ["prehistórico", "prehistórica"],
+  ["con armadura", "con armadura"], ["de peluche", "de peluche"],
+  ["oxidado", "oxidada"], ["mágico", "mágica"], ["de los años 80", "de los años 80"],
+  ["fantasmal", "fantasmal"], ["vegetal", "vegetal"], ["submarino", "submarina"],
+  ["con alas", "con alas"], ["de hielo", "de hielo"], ["punk", "punk"],
+  ["barroco", "barroca"], ["minimalista", "minimalista"], ["cósmico", "cósmica"],
+];
+
+// Personalidades: el objeto o personaje tiene un carácter que hay que transmitir.
+// [masculino, femenino]. Si es invariable, repite la palabra.
+var PERSONALIDADES = [
+  ["malvado", "malvada"], ["tímido", "tímida"], ["presumido", "presumida"],
+  ["gruñón", "gruñona"], ["perezoso", "perezosa"], ["valiente", "valiente"],
+  ["enamorado", "enamorada"], ["aburrido", "aburrida"], ["asustado", "asustada"],
+  ["celoso", "celosa"], ["curioso", "curiosa"], ["orgulloso", "orgullosa"],
+  ["torpe", "torpe"], ["nervioso", "nerviosa"], ["sabio", "sabia"],
+  ["travieso", "traviesa"], ["melancólico", "melancólica"], ["dramático", "dramática"],
+  ["cotilla", "cotilla"], ["egocéntrico", "egocéntrica"], ["amable", "amable"],
+  ["paranoico", "paranoica"], ["soñador", "soñadora"], ["despistado", "despistada"],
+  ["mandón", "mandona"], ["tierno", "tierna"], ["cascarrabias", "cascarrabias"],
+  ["optimista", "optimista"], ["rebelde", "rebelde"], ["vanidoso", "vanidosa"],
+  ["misterioso", "misteriosa"], ["avaricioso", "avariciosa"], ["generoso", "generosa"],
+  ["impaciente", "impaciente"], ["ansioso", "ansiosa"], ["chulo", "chula"],
+];
+
+// =====================================================================
+//  LÓGICA DE LA APP
+// =====================================================================
+
+// ---------- Estado guardado en el navegador ----------
+var CLAVE_FAVS = "prompts-dibujo:favoritos";
+var CLAVE_HIST = "prompts-dibujo:historial";
+var CLAVE_DESC = "prompts-dibujo:descartados";
+
+function cargar(clave) {
+  try { return JSON.parse(localStorage.getItem(clave)) || []; } catch (e) { return []; }
+}
+function guardar(clave, valor) {
+  try { localStorage.setItem(clave, JSON.stringify(valor)); } catch (e) {}
+}
+
+var favoritos = cargar(CLAVE_FAVS);     // prompts marcados con ★
+var historial = cargar(CLAVE_HIST);     // últimos prompts generados
+var descartados = cargar(CLAVE_DESC);   // combinaciones palabra+acción+lugar con 👎
+var actual = null;
+
+// Un prompt es:
+// { s: sustantivo, e: estilo|null, c: personalidad|null, a: acción|null, l: lugar|null }
+// (estilo y personalidad se guardan por su forma masculina)
+
+// ---------- Utilidades ----------
+function azar(lista) { return lista[Math.floor(Math.random() * lista.length)]; }
+function indexar(lista, clave) {
+  var m = {};
+  lista.forEach(function (x) { m[clave(x)] = x; });
+  return m;
+}
+var sustPorTexto = indexar(SUSTANTIVOS, function (x) { return x.t; });
+var estiloPorClave = indexar(ESTILOS, function (x) { return x[0]; });
+var persPorClave = indexar(PERSONALIDADES, function (x) { return x[0]; });
+
+function concordar(mapa, clave, sustantivo) {
+  var formas = mapa[clave];
+  if (!formas) return clave;
+  var s = sustPorTexto[sustantivo];
+  return formas[s && s.g === "f" ? 1 : 0];
+}
+
+function texto(p) {
+  var partes = [p.s];
+  if (p.c) partes.push(concordar(persPorClave, p.c, p.s));
+  if (p.e) partes.push(concordar(estiloPorClave, p.e, p.s));
+  if (p.a) partes.push(p.a);
+  if (p.l) partes.push(p.l);
+  return partes.join(" ");
+}
+function mismo(a, b) { return texto(a) === texto(b); }
+function esFavorito(p) { return favoritos.some(function (f) { return mismo(f, p); }); }
+
+// 👎 solo aplica a combinaciones completas palabra + acción + lugar
+function esCompleto(p) { return !!(p && p.a && p.l); }
+function claveCombo(p) { return p.s + "|" + p.a + "|" + p.l; }
+function esDescartado(p) {
+  return esCompleto(p) && descartados.some(function (d) { return claveCombo(d) === claveCombo(p); });
+}
+
+// Elementos que aparecen en los favoritos, por categoría
+function elementosFavoritos(campo) {
+  var vistos = [];
+  favoritos.forEach(function (f) {
+    if (f[campo] && vistos.indexOf(f[campo]) === -1) vistos.push(f[campo]);
+  });
+  return vistos;
+}
+
+// Devuelve la lista de la que elegir según el modo del generador
+function bolsa(campo, completa, modo, avisos, nombre) {
+  if (modo === "todo") return completa;
+  var favs = elementosFavoritos(campo);
+  if (modo === "favoritos") {
+    if (favs.length) return favs;
+    avisos.push("aún no tienes " + nombre + " favoritos");
+    return completa;
+  }
+  // modo "reto": todo lo que no esté en favoritos
+  var resto = completa.filter(function (x) { return favs.indexOf(x) === -1; });
+  if (resto.length) return resto;
+  avisos.push("ya tienes todos los " + nombre + " en favoritos");
+  return completa;
+}
+
+function valor(nombre) {
+  return document.querySelector("input[name=" + nombre + "]:checked").value;
+}
+
+// ---------- Generar ----------
+function generar() {
+  var nivel = Number(valor("nivel"));
+  var conEstilo = document.getElementById("con-estilo").checked;
+  var conPers = document.getElementById("con-personalidad").checked;
+  var modo = valor("modo");
+  var avisos = [];
+  var p;
+
+  // Varios intentos para no repetir el anterior ni salir un descartado
+  for (var i = 0; i < 50; i++) {
+    p = {
+      s: azar(bolsa("s", SUSTANTIVOS.map(function (x) { return x.t; }), modo, avisos, "sustantivos")),
+      e: conEstilo ? azar(bolsa("e", ESTILOS.map(function (x) { return x[0]; }), modo, avisos, "estilos")) : null,
+      c: conPers ? azar(bolsa("c", PERSONALIDADES.map(function (x) { return x[0]; }), modo, avisos, "personalidades")) : null,
+      a: nivel >= 2 ? azar(bolsa("a", ACCIONES, modo, avisos, "acciones")) : null,
+      l: nivel >= 3 ? azar(bolsa("l", LUGARES, modo, avisos, "lugares")) : null,
+    };
+    if (!esDescartado(p) && !(actual && mismo(p, actual))) break;
+  }
+
+  actual = p;
+  historial = [p].concat(historial.filter(function (h) { return !mismo(h, p); })).slice(0, 20);
+  guardar(CLAVE_HIST, historial);
+
+  var unicos = avisos.filter(function (x, i) { return avisos.indexOf(x) === i; });
+  document.getElementById("aviso").textContent =
+    unicos.length ? "Nota: " + unicos.join(", ") + "; se ha usado la lista completa." : "";
+  pintar();
+}
+
+function alternarFavorito(p) {
+  if (esFavorito(p)) favoritos = favoritos.filter(function (f) { return !mismo(f, p); });
+  else favoritos = [p].concat(favoritos);
+  guardar(CLAVE_FAVS, favoritos);
+  pintar();
+}
+
+function descartar(p) {
+  if (!esCompleto(p) || esDescartado(p)) return;
+  descartados = [{ s: p.s, a: p.a, l: p.l }].concat(descartados);
+  favoritos = favoritos.filter(function (f) { return !(esCompleto(f) && claveCombo(f) === claveCombo(p)); });
+  historial = historial.filter(function (h) { return !(esCompleto(h) && claveCombo(h) === claveCombo(p)); });
+  guardar(CLAVE_DESC, descartados);
+  guardar(CLAVE_FAVS, favoritos);
+  guardar(CLAVE_HIST, historial);
+  if (actual && mismo(actual, p)) generar(); else pintar();
+}
+
+function recuperar(d) {
+  descartados = descartados.filter(function (x) { return claveCombo(x) !== claveCombo(d); });
+  guardar(CLAVE_DESC, descartados);
+  pintar();
+}
+
+// ---------- Pintar la interfaz ----------
+function boton(simbolo, titulo, accion) {
+  var b = document.createElement("button");
+  b.textContent = simbolo;
+  b.title = titulo;
+  b.onclick = accion;
+  return b;
+}
+
+function fila(p, conBotones) {
+  var li = document.createElement("li");
+  var span = document.createElement("span");
+  span.textContent = texto(p);
+  li.appendChild(span);
+  var botones = document.createElement("div");
+  conBotones.forEach(function (b) { botones.appendChild(b); });
+  li.appendChild(botones);
+  return li;
+}
+
+function filaPrompt(p) {
+  var botones = [];
+  if (esCompleto(p)) botones.push(boton("👎", "No me gusta esta combinación", function () { descartar(p); }));
+  botones.push(boton(esFavorito(p) ? "★" : "☆",
+    esFavorito(p) ? "Quitar de favoritos" : "Añadir a favoritos",
+    function () { alternarFavorito(p); }));
+  return fila(p, botones);
+}
+
+function llenar(id, elementos, vacio) {
+  var ul = document.getElementById(id);
+  ul.innerHTML = "";
+  if (!elementos.length && vacio) {
+    var li = document.createElement("li");
+    li.className = "ayuda";
+    li.textContent = vacio;
+    ul.appendChild(li);
+  }
+  elementos.forEach(function (el) { ul.appendChild(el); });
+}
+
+function pintar() {
+  var btnFav = document.getElementById("btn-fav");
+  var btnNo = document.getElementById("btn-no");
+  if (actual) {
+    document.getElementById("prompt").textContent = texto(actual);
+    btnFav.disabled = false;
+    btnFav.textContent = esFavorito(actual) ? "★ Favorito" : "☆ Favorito";
+  }
+  btnNo.disabled = !esCompleto(actual);
+  btnNo.title = esCompleto(actual)
+    ? "No volverá a salir esta combinación de palabra + acción + lugar"
+    : "Solo disponible en el nivel palabra + acción + lugar";
+
+  llenar("historial", historial.map(filaPrompt));
+  llenar("lista-favoritos", favoritos.map(filaPrompt), "Todavía no tienes favoritos. Marca prompts con ☆.");
+  llenar("lista-descartados", descartados.map(function (d) {
+    return fila(d, [boton("↩", "Volver a permitir", function () { recuperar(d); })]);
+  }), "No has descartado ninguna combinación.");
+  document.getElementById("contador-fav").textContent = favoritos.length;
+}
+
+// ---------- Eventos ----------
+document.getElementById("btn-generar").onclick = generar;
+document.getElementById("btn-fav").onclick = function () { if (actual) alternarFavorito(actual); };
+document.getElementById("btn-no").onclick = function () { if (actual) descartar(actual); };
+Array.prototype.forEach.call(document.querySelectorAll(".tab"), function (tab) {
+  tab.onclick = function () {
+    Array.prototype.forEach.call(document.querySelectorAll(".tab"), function (t) {
+      t.classList.toggle("activa", t === tab);
+    });
+    Array.prototype.forEach.call(document.querySelectorAll(".vista"), function (v) {
+      v.classList.toggle("oculta", v.id !== "vista-" + tab.dataset.vista);
+    });
+  };
+});
+
+pintar();
+  </script>
 </body>
 </html>

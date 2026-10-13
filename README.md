@@ -4,14 +4,21 @@ Generador de ideas para dibujar, con niveles de dificultad y favoritos.
 
 ## Cómo usarla
 
-Abre `index.html` en tu navegador (doble clic). No hace falta instalar nada.
+Abre `index.html` en tu navegador (doble clic). No hace falta instalar nada: toda la app
+está en ese único archivo.
 
 - **Nivel del prompt**
   1. *Palabra*: «calavera» (el más libre)
   2. *Palabra + acción*: «calavera bailando»
   3. *Palabra + acción + lugar*: «calavera bailando en una biblioteca» (el más guiado)
-- **Añadir estilo**: añade un modificador a la palabra, por ejemplo «calavera kawaii».
+- **Extras** (se pueden combinar):
+  - *Estilo*: cómo se ve, por ejemplo «calavera kawaii».
+  - *Personalidad*: qué carácter tiene, por ejemplo «mesa malvada». Tienes que transmitir
+    esa personalidad en el dibujo.
 - **Favoritos (☆/★)**: marca los prompts que te gustan.
+- **No me gusta (👎)**: solo para combinaciones completas *palabra + acción + lugar*.
+  Esa combinación no vuelve a salir, pero las palabras sueltas sí. Puedes deshacerlo en la
+  pestaña Favoritos.
 - **Generador**
   - *Todo*: cualquier combinación.
   - *Mi zona*: combina los elementos de tus favoritos.
@@ -22,13 +29,7 @@ navegación, o usas otro dispositivo, no aparecerán).
 
 ## Añadir tus propias palabras
 
-Edita `data.js`. Hay cuatro listas: `SUSTANTIVOS`, `ACCIONES`, `LUGARES` y `ESTILOS`.
+Abre `index.html` con un editor de texto y busca la sección «LISTAS DE PALABRAS».
+Hay cinco listas: `SUSTANTIVOS`, `ACCIONES`, `LUGARES`, `ESTILOS` y `PERSONALIDADES`.
 En los sustantivos, `g` indica el género (`"m"` o `"f"`) para que el estilo concuerde
-(«calavera gótica», «gato gótico»).
-
-## Archivos
-
-- `index.html` – estructura de la página
-- `style.css` – aspecto visual
-- `data.js` – listas de palabras
-- `app.js` – lógica (generar, favoritos, historial)
+(«calavera malvada», «gato malvado»).
