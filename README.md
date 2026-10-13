@@ -23,6 +23,9 @@ está en ese único archivo.
   - *Todo*: cualquier combinación.
   - *Mi zona*: combina los elementos de tus favoritos.
   - *Reto*: evita los elementos de tus favoritos, para salir de tu zona de confort.
+- **Tiempo de dibujo (⏱️)**: elige 1, 5, 10, 15, 30 o 60 minutos y pulsa *Empezar*.
+  Puedes pausar y continuar. Al acabar suena un pitido y el móvil vibra. Mientras corre
+  el tiempo, la pantalla no se apaga.
 
 Los favoritos y el historial se guardan en el propio navegador (si borras los datos de
 navegación, o usas otro dispositivo, no aparecerán).

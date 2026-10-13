@@ -66,6 +66,25 @@ small { color: var(--suave); }
 .lista button { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--acento); }
 .ayuda { color: var(--suave); }
 .oculta { display: none; }
+.temporizador {
+  margin-top: 20px; background: var(--tarjeta); border: 1px solid var(--borde);
+  border-radius: 12px; padding: 16px; text-align: center;
+}
+.temporizador h2 { margin: 0 0 12px; }
+.tiempos { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.tiempos button {
+  padding: 8px 12px; border-radius: 999px; border: 1px solid var(--borde);
+  background: var(--fondo); color: var(--texto); font-size: .95rem; cursor: pointer;
+}
+.tiempos button.activa { background: var(--acento); color: #fff; border-color: var(--acento); }
+.tiempos button:disabled { opacity: .5; cursor: default; }
+#reloj {
+  font-size: 3.6rem; font-weight: 700; margin: 12px 0 8px;
+  font-variant-numeric: tabular-nums;
+}
+#reloj.fin { color: var(--acento); }
+.barra { height: 8px; background: var(--borde); border-radius: 4px; overflow: hidden; }
+#progreso { height: 100%; width: 0; background: var(--acento); transition: width .3s linear; }
   </style>
 </head>
 <body>
@@ -108,6 +127,24 @@ small { color: var(--suave); }
         <button id="btn-generar" class="principal">🎲 Nuevo prompt</button>
         <button id="btn-fav" disabled>☆ Favorito</button>
         <button id="btn-no" disabled>👎</button>
+      </div>
+
+      <div class="temporizador">
+        <h2>⏱️ Tiempo de dibujo</h2>
+        <div class="tiempos" id="tiempos">
+          <button data-min="1">1 min</button>
+          <button data-min="5">5 min</button>
+          <button data-min="10">10 min</button>
+          <button data-min="15">15 min</button>
+          <button data-min="30">30 min</button>
+          <button data-min="60">1 h</button>
+        </div>
+        <div id="reloj">05:00</div>
+        <div class="barra"><div id="progreso"></div></div>
+        <div class="acciones">
+          <button id="btn-tiempo" class="principal">▶ Empezar</button>
+          <button id="btn-reiniciar">↺ Reiniciar</button>
+        </div>
       </div>
 
       <h2>Historial</h2>
@@ -444,7 +481,113 @@ Array.prototype.forEach.call(document.querySelectorAll(".tab"), function (tab) {
   };
 });
 
+// =====================================================================
+//  TEMPORIZADOR
+// =====================================================================
+var CLAVE_MIN = "prompts-dibujo:minutos";
+var minutos = Number(cargar(CLAVE_MIN)) || 5;
+var restanteMs = minutos * 60000;  // tiempo que queda cuando está parado
+var finEn = null;                  // momento en que acaba (si está en marcha)
+var intervalo = null;
+var bloqueoPantalla = null;
+
+function formato(ms) {
+  var seg = Math.ceil(ms / 1000);
+  var h = Math.floor(seg / 3600), m = Math.floor((seg % 3600) / 60), s = seg % 60;
+  var dos = function (n) { return (n < 10 ? "0" : "") + n; };
+  return (h ? h + ":" + dos(m) : dos(m)) + ":" + dos(s);
+}
+
+function quedan() { return finEn ? Math.max(0, finEn - Date.now()) : restanteMs; }
+
+function pintarReloj() {
+  var ms = quedan();
+  var reloj = document.getElementById("reloj");
+  var terminado = ms === 0;
+  reloj.textContent = terminado ? "¡Tiempo!" : formato(ms);
+  reloj.classList.toggle("fin", terminado);
+  document.getElementById("progreso").style.width = (100 * (1 - ms / (minutos * 60000))) + "%";
+  document.getElementById("btn-tiempo").textContent = finEn ? "⏸ Pausa"
+    : terminado ? "▶ Otra vez"
+    : ms < minutos * 60000 ? "▶ Continuar" : "▶ Empezar";
+  Array.prototype.forEach.call(document.querySelectorAll("#tiempos button"), function (b) {
+    b.classList.toggle("activa", Number(b.dataset.min) === minutos);
+    b.disabled = !!finEn;
+  });
+}
+
+// Evita que la pantalla del móvil se apague mientras dibujas
+function mantenerPantalla(encendida) {
+  try {
+    if (encendida && navigator.wakeLock) {
+      navigator.wakeLock.request("screen").then(function (b) { bloqueoPantalla = b; }, function () {});
+    } else if (!encendida && bloqueoPantalla) {
+      bloqueoPantalla.release(); bloqueoPantalla = null;
+    }
+  } catch (e) {}
+}
+document.addEventListener("visibilitychange", function () {
+  if (document.visibilityState === "visible" && finEn) mantenerPantalla(true);
+});
+
+function pitar() {
+  try {
+    var ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [0, 0.35, 0.7].forEach(function (t) {
+      var o = ctx.createOscillator(), g = ctx.createGain();
+      o.frequency.value = 880;
+      g.gain.setValueAtTime(0.3, ctx.currentTime + t);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.3);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(ctx.currentTime + t); o.stop(ctx.currentTime + t + 0.3);
+    });
+  } catch (e) {}
+  if (navigator.vibrate) navigator.vibrate([300, 150, 300, 150, 300]);
+}
+
+function tic() {
+  if (finEn && Date.now() >= finEn) {
+    finEn = null; restanteMs = 0;
+    clearInterval(intervalo);
+    mantenerPantalla(false);
+    pitar();
+  }
+  pintarReloj();
+}
+
+function empezarOPausar() {
+  if (finEn) {                       // pausar
+    restanteMs = quedan(); finEn = null;
+    clearInterval(intervalo);
+    mantenerPantalla(false);
+  } else {                           // empezar o reanudar
+    if (restanteMs === 0) restanteMs = minutos * 60000;
+    finEn = Date.now() + restanteMs;
+    intervalo = setInterval(tic, 250);
+    mantenerPantalla(true);
+  }
+  pintarReloj();
+}
+
+function reiniciar() {
+  finEn = null; clearInterval(intervalo);
+  restanteMs = minutos * 60000;
+  mantenerPantalla(false);
+  pintarReloj();
+}
+
+document.getElementById("btn-tiempo").onclick = empezarOPausar;
+document.getElementById("btn-reiniciar").onclick = reiniciar;
+Array.prototype.forEach.call(document.querySelectorAll("#tiempos button"), function (b) {
+  b.onclick = function () {
+    minutos = Number(b.dataset.min);
+    guardar(CLAVE_MIN, minutos);
+    reiniciar();
+  };
+});
+
 pintar();
+pintarReloj();
   </script>
 </body>
 </html>
