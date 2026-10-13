@@ -15,10 +15,12 @@
 :root {
   --fondo: #faf7f2; --texto: #2b2620; --suave: #8a8073;
   --acento: #e2584a; --tarjeta: #fff; --borde: #e6dfd4;
+  --f1: #e9a23b; --f2: #e2584a; --f3: #9b4d96;
 }
 @media (prefers-color-scheme: dark) {
   :root { --fondo: #1d1b19; --texto: #f1ece4; --suave: #a59c90;
-          --acento: #ff7a6b; --tarjeta: #282522; --borde: #3a3632; }
+          --acento: #ff7a6b; --tarjeta: #282522; --borde: #3a3632;
+          --f1: #f0b04d; --f2: #ff7a6b; --f3: #c27cbd; }
 }
 * { box-sizing: border-box; }
 body {
@@ -79,12 +81,49 @@ small { color: var(--suave); }
 .tiempos button.activa { background: var(--acento); color: #fff; border-color: var(--acento); }
 .tiempos button:disabled { opacity: .5; cursor: default; }
 #reloj {
-  font-size: 3.6rem; font-weight: 700; margin: 12px 0 8px;
+  font-size: 3.6rem; font-weight: 700; margin: 12px 0 0;
   font-variant-numeric: tabular-nums;
 }
-#reloj.fin { color: var(--acento); }
-.barra { height: 8px; background: var(--borde); border-radius: 4px; overflow: hidden; }
-#progreso { height: 100%; width: 0; background: var(--acento); transition: width .3s linear; }
+#reloj.fin, #reloj.prorroga { color: var(--acento); }
+#fase { min-height: 1.4em; margin: 4px 0 10px; font-weight: 600; }
+#fase small { font-weight: 400; }
+/* Barra dividida en fases: encaje 20 %, desarrollo 60 %, remates 20 % */
+.barra { display: flex; gap: 3px; }
+.tramo { height: 10px; background: var(--borde); border-radius: 4px; overflow: hidden; }
+.tramo div { height: 100%; width: 0; }
+.tramo:nth-child(1) { flex: 20; } .tramo:nth-child(1) div { background: var(--f1); }
+.tramo:nth-child(2) { flex: 60; } .tramo:nth-child(2) div { background: var(--f2); }
+.tramo:nth-child(3) { flex: 20; } .tramo:nth-child(3) div { background: var(--f3); }
+.nombres-fases { display: flex; gap: 3px; font-size: .75rem; color: var(--suave); margin-top: 4px; }
+.nombres-fases span:nth-child(1), .nombres-fases span:nth-child(3) { flex: 20; }
+.nombres-fases span:nth-child(2) { flex: 60; }
+#final { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--borde); }
+#final p { margin: 0 0 8px; }
+#btn-prorroga {
+  width: 100%; margin-bottom: 14px; padding: 14px; font-size: 1.05rem; border-radius: 8px;
+  cursor: pointer; background: var(--f3); color: #fff; border: none;
+}
+.resultados { display: flex; gap: 6px; }
+.resultados button {
+  flex: 1; padding: 12px 4px; border-radius: 8px; border: 1px solid var(--borde);
+  background: var(--fondo); color: var(--texto); font-size: .95rem; cursor: pointer;
+}
+/* Progreso */
+.cifras { display: flex; gap: 8px; margin-bottom: 8px; }
+.cifra {
+  flex: 1; background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 12px;
+  padding: 12px 8px; text-align: center;
+}
+.cifra b { display: block; font-size: 1.6rem; }
+.cifra span { font-size: .8rem; color: var(--suave); }
+table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+th, td { padding: 8px 4px; border-bottom: 1px solid var(--borde); text-align: center; }
+th:first-child, td:first-child { text-align: left; }
+th { color: var(--suave); font-weight: 600; }
+.consejo { background: var(--tarjeta); border-left: 4px solid var(--acento); padding: 10px 12px; border-radius: 4px; }
+.sesion small { display: block; }
+.peligro { margin-top: 20px; background: none; border: 1px solid var(--borde); color: var(--suave);
+  padding: 8px 12px; border-radius: 8px; cursor: pointer; }
   </style>
 </head>
 <body>
@@ -93,6 +132,7 @@ small { color: var(--suave); }
     <nav>
       <button class="tab activa" data-vista="generar">Generar</button>
       <button class="tab" data-vista="favoritos">Favoritos <span id="contador-fav">0</span></button>
+      <button class="tab" data-vista="progreso">Progreso</button>
     </nav>
   </header>
 
@@ -132,18 +172,35 @@ small { color: var(--suave); }
       <div class="temporizador">
         <h2>⏱️ Tiempo de dibujo</h2>
         <div class="tiempos" id="tiempos">
+          <button data-min="auto" id="btn-auto">Auto</button>
           <button data-min="1">1 min</button>
           <button data-min="5">5 min</button>
           <button data-min="10">10 min</button>
           <button data-min="15">15 min</button>
+          <button data-min="20">20 min</button>
           <button data-min="30">30 min</button>
           <button data-min="60">1 h</button>
         </div>
         <div id="reloj">05:00</div>
-        <div class="barra"><div id="progreso"></div></div>
+        <p id="fase"></p>
+        <div class="barra">
+          <div class="tramo"><div id="tramo-1"></div></div>
+          <div class="tramo"><div id="tramo-2"></div></div>
+          <div class="tramo"><div id="tramo-3"></div></div>
+        </div>
+        <div class="nombres-fases"><span>Encaje</span><span>Desarrollo</span><span>Remates</span></div>
         <div class="acciones">
           <button id="btn-tiempo" class="principal">▶ Empezar</button>
           <button id="btn-reiniciar">↺ Reiniciar</button>
+        </div>
+        <div id="final" class="oculta">
+          <button id="btn-prorroga" class="principal"></button>
+          <p>¿Cómo ha ido?</p>
+          <div class="resultados">
+            <button data-r="acabe">✅ Lo acabé</button>
+            <button data-r="casi">🤏 Me faltó poco</button>
+            <button data-r="no">⏳ No llegué</button>
+          </div>
         </div>
       </div>
 
@@ -158,6 +215,9 @@ small { color: var(--suave); }
       <h2>Combinaciones descartadas 👎</h2>
       <p class="ayuda">Estas combinaciones de palabra + acción + lugar no volverán a salir. Las palabras sueltas sí pueden seguir apareciendo.</p>
       <ul id="lista-descartados" class="lista"></ul>
+    </section>
+    <section id="vista-progreso" class="vista oculta">
+      <div id="progreso-contenido"></div>
     </section>
   </main>
 
@@ -485,11 +545,42 @@ Array.prototype.forEach.call(document.querySelectorAll(".tab"), function (tab) {
 //  TEMPORIZADOR
 // =====================================================================
 var CLAVE_MIN = "prompts-dibujo:minutos";
-var minutos = Number(cargar(CLAVE_MIN)) || 5;
-var restanteMs = minutos * 60000;  // tiempo que queda cuando está parado
-var finEn = null;                  // momento en que acaba (si está en marcha)
+var CLAVE_SES = "prompts-dibujo:sesiones";
+
+// Tiempo propuesto para cada nivel cuando se elige «Auto»
+var MINUTOS_AUTO = { 1: 5, 2: 10, 3: 20 };
+
+// Fases orientativas (fracción del tiempo en que empiezan)
+var FASES = [
+  { desde: 0,   nombre: "Encaje",     consejo: "formas generales y composición" },
+  { desde: 0.2, nombre: "Desarrollo", consejo: "construye y define" },
+  { desde: 0.8, nombre: "Remates",    consejo: "detalles, contraste y cierre" },
+];
+var AVISO_CIERRE = 0.9;   // aviso «ve cerrando» cuando queda el 10 %
+
+var eleccion = (function () {
+  try { var v = JSON.parse(localStorage.getItem(CLAVE_MIN)); return v || "auto"; } catch (e) { return "auto"; }
+})();
+var sesiones = cargar(CLAVE_SES);
+
+var totalMs = 0;          // duración del tiempo elegido
+var restanteMs = 0;       // tiempo que queda cuando está parado
+var finEn = null;         // momento en que acaba (si está en marcha)
+var enProrroga = false;
+var prorrogaUsada = false;
+var esperandoResultado = false;
+var avisosHechos = {};
+var datosSesion = null;   // prompt y nivel con los que se empezó
 var intervalo = null;
 var bloqueoPantalla = null;
+
+function nivelElegido() { return Number(valor("nivel")); }
+function minutosBase() { return eleccion === "auto" ? MINUTOS_AUTO[nivelElegido()] : Number(eleccion); }
+
+// Prórroga: 20 % del tiempo, entre 30 s y 5 min
+function prorrogaMs() {
+  return Math.min(5 * 60000, Math.max(30000, Math.round(totalMs * 0.2 / 30000) * 30000));
+}
 
 function formato(ms) {
   var seg = Math.ceil(ms / 1000);
@@ -497,23 +588,68 @@ function formato(ms) {
   var dos = function (n) { return (n < 10 ? "0" : "") + n; };
   return (h ? h + ":" + dos(m) : dos(m)) + ":" + dos(s);
 }
+function formatoCorto(ms) {
+  var s = Math.round(ms / 1000);
+  return s < 60 ? s + " s" : (s % 60 ? Math.floor(s / 60) + " min " + (s % 60) + " s" : s / 60 + " min");
+}
 
 function quedan() { return finEn ? Math.max(0, finEn - Date.now()) : restanteMs; }
+function enMarcha() { return finEn !== null; }
+
+// Fracción del tiempo principal ya transcurrida (0 a 1)
+function transcurrido() {
+  if (enProrroga || esperandoResultado) return 1;
+  return totalMs ? 1 - quedan() / totalMs : 0;
+}
+function faseActual(f) {
+  var actualF = FASES[0];
+  FASES.forEach(function (x) { if (f >= x.desde) actualF = x; });
+  return actualF;
+}
 
 function pintarReloj() {
   var ms = quedan();
+  var f = transcurrido();
   var reloj = document.getElementById("reloj");
-  var terminado = ms === 0;
-  reloj.textContent = terminado ? "¡Tiempo!" : formato(ms);
-  reloj.classList.toggle("fin", terminado);
-  document.getElementById("progreso").style.width = (100 * (1 - ms / (minutos * 60000))) + "%";
-  document.getElementById("btn-tiempo").textContent = finEn ? "⏸ Pausa"
-    : terminado ? "▶ Otra vez"
-    : ms < minutos * 60000 ? "▶ Continuar" : "▶ Empezar";
-  Array.prototype.forEach.call(document.querySelectorAll("#tiempos button"), function (b) {
-    b.classList.toggle("activa", Number(b.dataset.min) === minutos);
-    b.disabled = !!finEn;
+  var fase = document.getElementById("fase");
+
+  reloj.textContent = esperandoResultado ? "¡Tiempo!" : formato(ms);
+  reloj.classList.toggle("fin", esperandoResultado);
+  reloj.classList.toggle("prorroga", enProrroga);
+
+  if (esperandoResultado) fase.innerHTML = "";
+  else if (enProrroga) fase.innerHTML = "Prórroga <small>· cierra el dibujo</small>";
+  else if (!enMarcha() && ms === totalMs) fase.innerHTML = "";
+  else {
+    var x = faseActual(f);
+    fase.innerHTML = x.nombre + " <small>· " +
+      (f >= AVISO_CIERRE ? "ve cerrando ✋" : x.consejo) + "</small>";
+  }
+
+  // Relleno de cada tramo de la barra
+  [[0, 0.2], [0.2, 0.8], [0.8, 1]].forEach(function (t, i) {
+    var lleno = Math.min(1, Math.max(0, (f - t[0]) / (t[1] - t[0])));
+    document.getElementById("tramo-" + (i + 1)).style.width = (lleno * 100) + "%";
   });
+
+  var btn = document.getElementById("btn-tiempo");
+  btn.disabled = esperandoResultado;
+  btn.textContent = enMarcha() ? "⏸ Pausa"
+    : esperandoResultado ? "▶ Empezar"
+    : (enProrroga || ms < totalMs) ? "▶ Continuar" : "▶ Empezar";
+
+  var ocupado = enMarcha() || enProrroga || esperandoResultado || ms < totalMs;
+  Array.prototype.forEach.call(document.querySelectorAll("#tiempos button"), function (b) {
+    b.classList.toggle("activa", b.dataset.min === String(eleccion));
+    b.disabled = ocupado;
+  });
+  document.getElementById("btn-auto").textContent =
+    eleccion === "auto" ? "Auto (" + minutosBase() + " min)" : "Auto";
+
+  document.getElementById("final").classList.toggle("oculta", !esperandoResultado);
+  var btnP = document.getElementById("btn-prorroga");
+  btnP.classList.toggle("oculta", prorrogaUsada);
+  btnP.textContent = "＋" + formatoCorto(prorrogaMs()) + " para cerrar (solo una vez)";
 }
 
 // Evita que la pantalla del móvil se apague mientras dibujas
@@ -527,67 +663,223 @@ function mantenerPantalla(encendida) {
   } catch (e) {}
 }
 document.addEventListener("visibilitychange", function () {
-  if (document.visibilityState === "visible" && finEn) mantenerPantalla(true);
+  if (document.visibilityState === "visible" && enMarcha()) mantenerPantalla(true);
 });
 
-function pitar() {
+// Sonido: n pitidos cortos + vibración
+var audio = null;
+function pitar(n, frecuencia) {
   try {
-    var ctx = new (window.AudioContext || window.webkitAudioContext)();
-    [0, 0.35, 0.7].forEach(function (t) {
-      var o = ctx.createOscillator(), g = ctx.createGain();
-      o.frequency.value = 880;
-      g.gain.setValueAtTime(0.3, ctx.currentTime + t);
-      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.3);
-      o.connect(g); g.connect(ctx.destination);
-      o.start(ctx.currentTime + t); o.stop(ctx.currentTime + t + 0.3);
-    });
+    audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+    for (var i = 0; i < n; i++) {
+      var t = audio.currentTime + i * 0.35;
+      var o = audio.createOscillator(), g = audio.createGain();
+      o.frequency.value = frecuencia || 880;
+      g.gain.setValueAtTime(0.3, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+      o.connect(g); g.connect(audio.destination);
+      o.start(t); o.stop(t + 0.3);
+    }
   } catch (e) {}
-  if (navigator.vibrate) navigator.vibrate([300, 150, 300, 150, 300]);
+  if (navigator.vibrate) {
+    var patron = [];
+    for (var j = 0; j < n; j++) patron.push(250, 150);
+    navigator.vibrate(patron);
+  }
 }
 
 function tic() {
-  if (finEn && Date.now() >= finEn) {
+  if (enMarcha() && !enProrroga) {
+    var f = transcurrido();
+    // Aviso suave al cambiar de fase y al entrar en el último 10 %
+    FASES.forEach(function (x) {
+      if (x.desde > 0 && f >= x.desde && !avisosHechos[x.nombre]) {
+        avisosHechos[x.nombre] = true; pitar(1, 660);
+      }
+    });
+    if (f >= AVISO_CIERRE && f < 1 && !avisosHechos.cierre) {
+      avisosHechos.cierre = true; pitar(2, 660);
+    }
+  }
+  if (enMarcha() && Date.now() >= finEn) {
     finEn = null; restanteMs = 0;
+    enProrroga = false;
+    esperandoResultado = true;
     clearInterval(intervalo);
     mantenerPantalla(false);
-    pitar();
+    pitar(3);
   }
   pintarReloj();
 }
 
+function arrancar(ms) {
+  finEn = Date.now() + ms;
+  clearInterval(intervalo);
+  intervalo = setInterval(tic, 250);
+  mantenerPantalla(true);
+  // Desbloquea el audio en iPhone (necesita un toque del usuario)
+  try { audio = audio || new (window.AudioContext || window.webkitAudioContext)(); audio.resume(); } catch (e) {}
+}
+
 function empezarOPausar() {
-  if (finEn) {                       // pausar
+  if (enMarcha()) {                  // pausar
     restanteMs = quedan(); finEn = null;
     clearInterval(intervalo);
     mantenerPantalla(false);
-  } else {                           // empezar o reanudar
-    if (restanteMs === 0) restanteMs = minutos * 60000;
-    finEn = Date.now() + restanteMs;
-    intervalo = setInterval(tic, 250);
-    mantenerPantalla(true);
+  } else {                           // empezar o continuar
+    if (!datosSesion) datosSesion = { p: actual ? texto(actual) : "", n: nivelElegido() };
+    arrancar(restanteMs);
   }
+  pintarReloj();
+}
+
+function usarProrroga() {
+  if (prorrogaUsada) return;
+  prorrogaUsada = true;
+  enProrroga = true;
+  esperandoResultado = false;
+  restanteMs = prorrogaMs();
+  arrancar(restanteMs);
   pintarReloj();
 }
 
 function reiniciar() {
   finEn = null; clearInterval(intervalo);
-  restanteMs = minutos * 60000;
+  totalMs = minutosBase() * 60000;
+  restanteMs = totalMs;
+  enProrroga = false; prorrogaUsada = false; esperandoResultado = false;
+  avisosHechos = {}; datosSesion = null;
   mantenerPantalla(false);
   pintarReloj();
 }
 
+function registrar(resultado) {
+  sesiones = [{
+    f: Date.now(),
+    p: datosSesion ? datosSesion.p : "",
+    n: datosSesion ? datosSesion.n : nivelElegido(),
+    m: totalMs / 60000,
+    x: prorrogaUsada,
+    r: resultado,
+  }].concat(sesiones).slice(0, 500);
+  guardar(CLAVE_SES, sesiones);
+  reiniciar();
+  document.getElementById("fase").innerHTML = "Guardado en tu progreso 👍";
+  pintarProgreso();
+}
+
 document.getElementById("btn-tiempo").onclick = empezarOPausar;
 document.getElementById("btn-reiniciar").onclick = reiniciar;
+document.getElementById("btn-prorroga").onclick = usarProrroga;
+Array.prototype.forEach.call(document.querySelectorAll(".resultados button"), function (b) {
+  b.onclick = function () { registrar(b.dataset.r); };
+});
 Array.prototype.forEach.call(document.querySelectorAll("#tiempos button"), function (b) {
   b.onclick = function () {
-    minutos = Number(b.dataset.min);
-    guardar(CLAVE_MIN, minutos);
+    eleccion = b.dataset.min === "auto" ? "auto" : Number(b.dataset.min);
+    guardar(CLAVE_MIN, eleccion);
     reiniciar();
   };
 });
+// Con «Auto», al cambiar de nivel cambia el tiempo (si el temporizador está parado)
+Array.prototype.forEach.call(document.querySelectorAll("input[name=nivel]"), function (r) {
+  r.addEventListener("change", function () {
+    if (eleccion === "auto" && !enMarcha() && !enProrroga && !esperandoResultado && quedan() === totalMs) reiniciar();
+  });
+});
+
+// =====================================================================
+//  PROGRESO
+// =====================================================================
+var NOMBRE_NIVEL = { 1: "1 · Palabra", 2: "2 · + acción", 3: "3 · + lugar" };
+var NOMBRE_RES = { acabe: "✅ Lo acabé", casi: "🤏 Me faltó poco", no: "⏳ No llegué" };
+
+function porcentaje(lista, r) {
+  if (!lista.length) return "–";
+  return Math.round(100 * lista.filter(function (s) { return s.r === r; }).length / lista.length) + " %";
+}
+
+function tablaPor(campo, valores, etiqueta) {
+  var filas = valores.map(function (v) {
+    var grupo = sesiones.filter(function (s) { return s[campo] === v; });
+    if (!grupo.length) return "";
+    return "<tr><td>" + etiqueta(v) + "</td><td>" + grupo.length + "</td><td>" +
+      porcentaje(grupo, "acabe") + "</td><td>" + porcentaje(grupo, "casi") + "</td><td>" +
+      porcentaje(grupo, "no") + "</td></tr>";
+  }).join("");
+  return "<table><tr><th></th><th>Dibujos</th><th>✅</th><th>🤏</th><th>⏳</th></tr>" + filas + "</table>";
+}
+
+// Busca una combinación nivel + tiempo en la que casi nunca llegas
+function consejo() {
+  var grupos = {};
+  sesiones.forEach(function (s) {
+    var k = s.n + "|" + s.m;
+    (grupos[k] = grupos[k] || []).push(s);
+  });
+  var peor = null;
+  Object.keys(grupos).forEach(function (k) {
+    var g = grupos[k];
+    if (g.length < 3) return;
+    var fallos = g.filter(function (s) { return s.r === "no"; }).length / g.length;
+    if (fallos >= 0.5 && (!peor || fallos > peor.fallos)) peor = { s: g[0], fallos: fallos };
+  });
+  if (peor) {
+    return "En el nivel «" + NOMBRE_NIVEL[peor.s.n] + "» con " + peor.s.m +
+      " min no sueles llegar. Prueba con más tiempo o simplifica el enfoque.";
+  }
+  var prorrogas = sesiones.filter(function (s) { return s.x; }).length;
+  if (sesiones.length >= 5 && prorrogas / sesiones.length > 0.6) {
+    return "Usas la prórroga en la mayoría de dibujos: quizá te venga mejor un tiempo un poco más largo.";
+  }
+  return "";
+}
+
+function escapar(t) {
+  return String(t).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; });
+}
+
+function pintarProgreso() {
+  var cont = document.getElementById("progreso-contenido");
+  if (!sesiones.length) {
+    cont.innerHTML = "<p class='ayuda'>Aún no hay dibujos registrados. Cuando acabe el temporizador, " +
+      "marca cómo te ha ido y aquí verás tu evolución.</p>";
+    return;
+  }
+  var minutosTotales = sesiones.reduce(function (a, s) { return a + s.m; }, 0);
+  var tiempos = [];
+  sesiones.forEach(function (s) { if (tiempos.indexOf(s.m) === -1) tiempos.push(s.m); });
+  tiempos.sort(function (a, b) { return a - b; });
+  var c = consejo();
+
+  cont.innerHTML =
+    "<div class='cifras'>" +
+      "<div class='cifra'><b>" + sesiones.length + "</b><span>dibujos</span></div>" +
+      "<div class='cifra'><b>" + (minutosTotales >= 60 ? (minutosTotales / 60).toFixed(1) + " h" : minutosTotales + " min") + "</b><span>dibujando</span></div>" +
+      "<div class='cifra'><b>" + porcentaje(sesiones, "acabe") + "</b><span>acabados</span></div>" +
+    "</div>" +
+    (c ? "<p class='consejo'>💡 " + c + "</p>" : "") +
+    "<h2>Por nivel</h2>" + tablaPor("n", [1, 2, 3], function (v) { return NOMBRE_NIVEL[v]; }) +
+    "<h2>Por tiempo</h2>" + tablaPor("m", tiempos, function (v) { return v + " min"; }) +
+    "<h2>Últimos dibujos</h2><ul class='lista'>" +
+    sesiones.slice(0, 20).map(function (s) {
+      var fecha = new Date(s.f).toLocaleDateString("es", { day: "numeric", month: "short" });
+      return "<li class='sesion'><span>" + escapar(s.p || "(sin prompt)") +
+        "<small class='ayuda'>" + fecha + " · " + s.m + " min" + (s.x ? " + prórroga" : "") +
+        "</small></span><span>" + NOMBRE_RES[s.r].split(" ")[0] + "</span></li>";
+    }).join("") + "</ul>" +
+    "<button class='peligro' id='btn-borrar-progreso'>Borrar registro</button>";
+
+  document.getElementById("btn-borrar-progreso").onclick = function () {
+    if (confirm("¿Borrar todo el registro de dibujos?")) {
+      sesiones = []; guardar(CLAVE_SES, sesiones); pintarProgreso();
+    }
+  };
+}
 
 pintar();
-pintarReloj();
+reiniciar();
+pintarProgreso();
   </script>
 </body>
 </html>

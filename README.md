@@ -23,11 +23,19 @@ está en ese único archivo.
   - *Todo*: cualquier combinación.
   - *Mi zona*: combina los elementos de tus favoritos.
   - *Reto*: evita los elementos de tus favoritos, para salir de tu zona de confort.
-- **Tiempo de dibujo (⏱️)**: elige 1, 5, 10, 15, 30 o 60 minutos y pulsa *Empezar*.
-  Puedes pausar y continuar. Al acabar suena un pitido y el móvil vibra. Mientras corre
-  el tiempo, la pantalla no se apaga.
+- **Tiempo de dibujo (⏱️)**: elige un tiempo y pulsa *Empezar*. Puedes pausar y continuar.
+  Mientras corre el tiempo, la pantalla no se apaga.
+  - *Auto*: propone un tiempo según el nivel (palabra 5 min, + acción 10 min, + lugar 20 min).
+  - *Fases orientativas*: la barra se divide en **encaje** (20 %), **desarrollo** (60 %) y
+    **remates** (20 %), con un pitido suave al cambiar de fase.
+  - *Aviso de cierre*: doble pitido cuando queda el 10 % del tiempo.
+  - *Prórroga*: al acabar, puedes pedir una sola vez un poco más de tiempo para cerrar
+    (20 % del tiempo, entre 30 s y 5 min).
+  - *Registro*: al terminar marcas «Lo acabé», «Me faltó poco» o «No llegué».
+- **Progreso**: estadísticas de tus dibujos por nivel y por tiempo, con consejos
+  (por ejemplo, si en cierto nivel y tiempo casi nunca llegas).
 
-Los favoritos y el historial se guardan en el propio navegador (si borras los datos de
+Los favoritos, el historial y el progreso se guardan en el propio navegador (si borras los datos de
 navegación, o usas otro dispositivo, no aparecerán).
 
 ## Añadir tus propias palabras
