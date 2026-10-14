@@ -153,6 +153,13 @@ th { color: var(--suave); font-weight: 600; }
       </fieldset>
 
       <fieldset>
+        <legend>Protagonista</legend>
+        <label><input type="radio" name="protagonista" value="todo" checked> Cualquiera</label>
+        <label><input type="radio" name="protagonista" value="humanos"> Humanos <small>(personas y personajes)</small></label>
+        <label><input type="radio" name="protagonista" value="hibridos"> Híbridos humanos <small>(ej. "mujer gato", "vikingo pulpo")</small></label>
+      </fieldset>
+
+      <fieldset>
         <legend>Generador</legend>
         <label><input type="radio" name="modo" value="todo" checked> Todo</label>
         <label><input type="radio" name="modo" value="favoritos"> Mi zona <small>(a partir de mis favoritos)</small></label>
@@ -342,7 +349,9 @@ var SUSTANTIVOS = [
   { t: "enano", g: "m", k: "p", f: "enana" }, { t: "cartero", g: "m", k: "p" },
   { t: "mayordomo", g: "m", k: "p" }, { t: "bibliotecario", g: "m", k: "p", f: "bibliotecaria" },
   { t: "camarero", g: "m", k: "p", f: "camarera" }, { t: "superhéroe", g: "m", k: "p", f: "superheroína" },
-  // Personas (solo como primera palabra de una fusión) (6)
+  // Personas (solo como primera palabra de una fusión) (10)
+  { t: "hombre", g: "m", k: "h" }, { t: "mujer", g: "f", k: "h" }, { t: "chico", g: "m", k: "h" },
+  { t: "chica", g: "f", k: "h" },
   { t: "abuela", g: "f", k: "h" }, { t: "anciano", g: "m", k: "h" }, { t: "bebé", g: "m", k: "h" },
   { t: "niño", g: "m", k: "h" }, { t: "niña", g: "f", k: "h" }, { t: "abuelo", g: "m", k: "h" },
   // Criaturas (58)
@@ -482,6 +491,7 @@ var ACCIONES = [
   "tejiendo una bufanda", "arropándose con una manta", "encendiendo una hoguera",
   "apagando un incendio", "persiguiendo a un ladrón", "atrapando una estrella",
   "domando a una fiera", "haciendo un pícnic", "vendiendo limonada",
+  "fumando",
 ];
 
 var LUGARES = [
@@ -766,15 +776,26 @@ function generar() {
   var nivel = Number(valor("nivel"));
   var conEstilo = document.getElementById("con-estilo").checked;
   var conPers = document.getElementById("con-personalidad").checked;
-  var conFusion = document.getElementById("con-fusion").checked;
+  var protagonista = valor("protagonista");
+  // Los híbridos humanos son siempre una fusión: humano + animal o criatura
+  var conFusion = protagonista === "hibridos" || document.getElementById("con-fusion").checked;
   var modo = valor("modo");
+
+  // Palabras que pueden ser la base según el protagonista elegido
+  var bases = SUSTANTIVOS.filter(function (x) {
+    return protagonista === "todo" || x.k === "p" || x.k === "h";
+  }).map(function (x) { return x.t; });
+  var esBase = function (t) { return bases.indexOf(t) !== -1; };
   var avisos = [];
   var p;
 
   // Varios intentos para no repetir el anterior ni salir un descartado
   for (var i = 0; i < 50; i++) {
     p = {
-      s: azar(bolsa("s", SUSTANTIVOS.map(function (x) { return x.t; }), modo, avisos, "sustantivos")),
+      s: (function () {
+        var opciones = bolsa("s", bases, modo, avisos, "sustantivos").filter(esBase);
+        return azar(opciones.length ? opciones : bases);
+      })(),
       s2: null,
       e: conEstilo ? azar(bolsa("e", ESTILOS.map(function (x) { return x[0]; }), modo, avisos, "estilos")) : null,
       c: conPers ? azar(bolsa("c", PERSONALIDADES.map(function (x) { return x[0]; }), modo, avisos, "personalidades")) : null,

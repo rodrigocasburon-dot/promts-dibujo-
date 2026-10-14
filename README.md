@@ -18,6 +18,11 @@ está en ese único archivo.
   - *Fusión*: mezcla dos palabras en un solo ser, por ejemplo «mono payaso» o «calavera
     perro». La segunda palabra siempre es un animal, personaje o criatura que presta sus
     rasgos a la primera, y los personajes concuerdan en género («gato brujo», «rana bruja»).
+- **Protagonista**:
+  - *Cualquiera*: animales, personajes, criaturas u objetos.
+  - *Humanos*: solo personas y personajes («vikingo», «abuela», «bailarina»).
+  - *Híbridos humanos*: siempre una fusión de humano con animal o criatura
+    («mujer gato», «vikingo pulpo», «abuela yeti»).
 - **Favoritos (☆/★)**: marca los prompts que te gustan.
 - **No me gusta (👎)**: solo para combinaciones completas *palabra + acción + lugar*.
   Esa combinación no vuelve a salir, pero las palabras sueltas sí. Puedes deshacerlo en la
