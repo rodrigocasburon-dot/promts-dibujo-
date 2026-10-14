@@ -43,11 +43,15 @@
   --f1: var(--oliva); --f2: var(--verde); --f3: var(--oliva-oscuro);
   /* pósits del prompt: tonos claros de la paleta, según el nivel */
   --postit-1: #e6e4a6; --postit-2: #bfe2b4; --postit-3: #d6dab8; --postit-texto: #2a2e1c;
+  /* texto dentro de las tarjetas (no cambia con el bloc cerrado) */
+  --texto-tarjeta: #34382a; --suave-tarjeta: #6f7360; --borde-tarjeta: rgba(99, 107, 47, .3);
+  --mesa: #c9c5b6;   /* la mesa sobre la que está el bloc */
   --a-mano: "Caveat", "Segoe Print", "Bradley Hand", cursive;
   --lapiz: "Lapiz", "Segoe Print", "Bradley Hand", cursive;
 }
 :root[data-tema="kraft"] {
   --texto: #35291d; --suave: #6b5640; --grano: 0 0 .7px rgba(53, 41, 29, .6);
+  --texto-tarjeta: #35291d; --suave-tarjeta: #6b5640; --borde-tarjeta: rgba(70, 45, 20, .28);
   --tarjeta: rgba(255, 246, 228, .6); --borde: rgba(70, 45, 20, .28); --trazo: #2e2216;
   --capa: #c9a372; --mezcla: multiply; --fondo: #c9a372;
 }
@@ -56,6 +60,7 @@
   --tarjeta: rgba(28, 32, 16, .55); --borde: rgba(242, 240, 239, .2); --trazo: #F2F0EF;
   --capa: #3a4020; --mezcla: multiply; --fondo: #3a4020;
   --f1: #b5b53a; --f2: #5cc25c; --f3: #a3ad5e;
+  --texto-tarjeta: #F2F0EF; --suave-tarjeta: #b9bca4; --borde-tarjeta: rgba(242, 240, 239, .2); --mesa: #1d2010;
   --grano: 0 0 1.2px rgba(255, 255, 255, .45);   /* tiza */
 }
 @media (prefers-color-scheme: dark) {
@@ -64,12 +69,13 @@
     --tarjeta: rgba(28, 32, 16, .55); --borde: rgba(242, 240, 239, .2); --trazo: #F2F0EF;
     --capa: #3a4020; --mezcla: multiply; --fondo: #3a4020;
     --f1: #b5b53a; --f2: #5cc25c; --f3: #a3ad5e;
+    --texto-tarjeta: #F2F0EF; --suave-tarjeta: #b9bca4; --borde-tarjeta: rgba(242, 240, 239, .2); --mesa: #1d2010;
     --grano: 0 0 1.2px rgba(255, 255, 255, .45);
   }
 }
 
 * { box-sizing: border-box; }
-html { background: var(--fondo); }
+html { background: var(--mesa); }
 body {
   margin: 0; font-family: var(--lapiz); font-size: 16.5px;
   color: var(--texto); background: transparent; min-height: 100vh;
@@ -77,13 +83,60 @@ body {
 }
 button, select, input { font-family: inherit; text-shadow: inherit; }
 /* Fondo de papel arrugado (fijo, también en iPhone) */
-body::before {
-  content: ""; position: fixed; inset: 0; z-index: -1;
+/* =====================================================================
+   BLOC DE DIBUJO (fondo): hoja + tapa + anillas
+   ===================================================================== */
+.bloc {
+  position: fixed; inset: 6px; z-index: -1; perspective: 1600px;
+  border-radius: 6px 6px 10px 10px;
+  box-shadow: 0 10px 24px rgba(0,0,0,.35), 0 2px 0 #d9d6cc, 0 4px 0 #cfccc1;  /* canto de hojas */
+}
+.bloc .hoja {
+  position: absolute; inset: 0; border-radius: inherit;
   background: var(--capa) url("recursos/papel.jpg") center / cover;
   background-blend-mode: var(--mezcla);
 }
+/* Tapa de cartón */
+.bloc .tapa-bloc {
+  position: absolute; inset: 0; border-radius: inherit; transform-origin: 50% 0;
+  background:
+    radial-gradient(120% 80% at 20% 10%, rgba(255,255,255,.12), rgba(255,255,255,0) 60%),
+    linear-gradient(160deg, rgba(111,120,54,.86) 0%, rgba(99,107,47,.88) 45%, rgba(84,91,39,.9) 100%),
+    url("recursos/grano-grafito.png") 0 0 / 140px 140px,
+    #4f5524;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.25), inset 0 -6px 12px rgba(0,0,0,.18);
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  transition: transform 1s cubic-bezier(.45,.05,.3,1), opacity .25s ease .75s;
+}
+/* Goma elástica del bloc */
+.bloc .tapa-bloc::after {
+  content: ""; position: absolute; top: 0; bottom: 0; right: 26px; width: 9px;
+  background: linear-gradient(90deg, #1a1c0e, #34381d 45%, #1a1c0e);
+  box-shadow: 1px 0 2px rgba(0,0,0,.4);
+}
+/* Anillas de espiral */
+.bloc .anillas {
+  position: absolute; left: 10px; right: 10px; top: -12px; height: 30px; z-index: 2;
+  background: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2222%22%20height%3D%2230%22%20viewBox%3D%220%200%2022%2030%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22m%22%20x1%3D%220%22%20x2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%237d7d7d%22/%3E%3Cstop%20offset%3D%22.45%22%20stop-color%3D%22%23f4f4f4%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%238a8a8a%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Cellipse%20cx%3D%2211%22%20cy%3D%2223%22%20rx%3D%224.2%22%20ry%3D%222.6%22%20fill%3D%22%2315170b%22%20opacity%3D%22.85%22/%3E%3Cpath%20d%3D%22M7.6%2023%20C7.2%204%2014.8%204%2014.4%2023%22%20fill%3D%22none%22%20stroke%3D%22url%28%23m%29%22%20stroke-width%3D%222.8%22%20stroke-linecap%3D%22round%22/%3E%3Cpath%20d%3D%22M8.6%2018%20C8.6%208%2011%206.5%2012.2%207%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%22.8%22%20opacity%3D%22.8%22%20stroke-linecap%3D%22round%22/%3E%3C/svg%3E") left top / 22px 30px;
+  background-repeat: round no-repeat;
+  filter: drop-shadow(0 2px 1.5px rgba(0,0,0,.4));
+}
+/* Al generar el primer prompt la tapa se levanta y aparece la hoja */
+body.abriendo .bloc .tapa-bloc { transform: rotateX(-172deg); opacity: 0; }
+@media (prefers-reduced-motion: reduce) { .bloc .tapa-bloc { transition: opacity .3s; } }
+
+/* Con el bloc cerrado, el texto suelto va en crema sobre la tapa;
+   el de dentro de las tarjetas sigue igual */
+body.cerrado {
+  --texto: #F2F0EF; --suave: #d8dabd; --borde: rgba(242, 240, 239, .3);
+  --grano: 0 0 .7px rgba(0, 0, 0, .35);
+}
+body.cerrado .ajustes, body.cerrado .temporizador, body.cerrado .cifra, body.cerrado #enfoque {
+  --texto: var(--texto-tarjeta); --suave: var(--suave-tarjeta); --borde: var(--borde-tarjeta);
+}
 
 header, main { max-width: 640px; margin: 0 auto; padding: 12px 16px; }
+header { padding-top: 28px; }   /* deja sitio a las anillas */
 main { padding-top: 0; }
 .cabecera { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
 h1 { margin: 0; }
@@ -166,7 +219,7 @@ nav { display: flex; gap: 6px; }
 .ajustes details + details { border-top: 1px dashed var(--borde); }
 .ajustes summary {
   display: flex; justify-content: space-between; align-items: center; gap: 8px;
-  padding: 8px 14px; cursor: pointer; list-style: none;
+  padding: 7px 14px; cursor: pointer; list-style: none;
 }
 .ajustes summary::-webkit-details-marker { display: none; }
 .ajustes summary span {
@@ -223,7 +276,7 @@ input[type=radio], input[type=checkbox] { accent-color: var(--acento); }
 @media (prefers-reduced-motion: reduce) { .postit.volteo { animation: none; } }
 
 /* ---------- Botones ---------- */
-.acciones { display: flex; gap: 8px; margin-top: 16px; }
+.acciones { display: flex; gap: 8px; margin-top: 12px; }
 .acciones button {
   min-width: 0; flex: 1; padding: 13px 10px; font-size: 1.02rem; cursor: pointer;
   display: inline-flex; align-items: center; justify-content: center;
@@ -241,7 +294,7 @@ input[type=radio], input[type=checkbox] { accent-color: var(--acento); }
 
 /* ---------- Temporizador ---------- */
 .temporizador {
-  margin-top: 14px; background: var(--tarjeta); border: 1.5px solid var(--borde);
+  margin-top: 12px; background: var(--tarjeta); border: 1.5px solid var(--borde);
   border-radius: 10px 16px 9px 14px; padding: 12px 16px; text-align: center;
   backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
 }
@@ -446,7 +499,13 @@ th, td, .cifra b, .cifra span, .version, .nota-auto, #final p, .consejo span {
 .consejo { --tinta: var(--postit-texto); }
   </style>
 </head>
-<body>
+<body class="cerrado">
+  <!-- Fondo: bloc de dibujo (cerrado hasta que generas el primer prompt) -->
+  <div class="bloc" aria-hidden="true">
+    <div class="hoja"></div>
+    <div class="tapa-bloc"></div>
+    <div class="anillas"></div>
+  </div>
   <!-- Iconos dibujados a mano (trazo con un leve temblor de lápiz) -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
     <defs>
@@ -1210,7 +1269,15 @@ function valor(nombre) {
 }
 
 // ---------- Generar ----------
+// Abre el bloc: la tapa se levanta sobre las anillas y aparece la hoja
+function abrirBloc() {
+  if (!document.body.classList.contains("cerrado")) return;
+  document.body.classList.add("abriendo");
+  setTimeout(function () { document.body.classList.remove("cerrado"); }, 450);
+}
+
 function generar() {
+  abrirBloc();
   var nivel = Number(valor("nivel"));
   var conEstilo = document.getElementById("con-estilo").checked;
   var conPers = document.getElementById("con-personalidad").checked;
@@ -1857,7 +1924,7 @@ function pintarProgreso() {
 //  Al abrir la app (o volver a ella) comprueba si hay una versión nueva
 //  publicada y, si la hay, la carga. Cambia VERSION en cada cambio.
 // =====================================================================
-var VERSION = "2026-10-14.9";
+var VERSION = "2026-10-15.1";
 
 function buscarActualizacion() {
   if (location.protocol === "file:" || !window.fetch) return;

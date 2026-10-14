@@ -77,6 +77,9 @@ Cada vez que se suban cambios al repositorio, la app del móvil se actualiza sol
 
 ## Aspecto visual
 
+- **Bloc de dibujo**: al abrir la app se ve la tapa cerrada de un bloc (con anillas y goma
+  elástica) y los post-its pegados encima. Al generar el primer prompt, la tapa se levanta
+  y aparece la hoja.
 - **Temas** (botón de la paleta, arriba a la derecha): Automático (papel de día, pizarra
   de noche), Papel, Kraft y Pizarra.
 - **Pósit**: el prompt aparece en un pósit escrito a mano, de color según el nivel
