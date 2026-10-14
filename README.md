@@ -46,8 +46,8 @@ navegación, o usas otro dispositivo, no aparecerán).
 Abre `index.html` con un editor de texto y busca la sección «LISTAS DE PALABRAS».
 Hay cinco listas: `SUSTANTIVOS`, `ACCIONES`, `LUGARES`, `ESTILOS` y `PERSONALIDADES`.
 En los sustantivos, `g` indica el género (`"m"` o `"f"`) para que el estilo concuerde
-(«calavera malvada», «gato malvado»), y `k` el tipo (animal, personaje, criatura u
-objeto), que decide qué fusiones tienen sentido. Las reglas están en `FUSIONES`, y las
+(«calavera malvada», «gato malvado»), y `k` el tipo (animal, personaje, persona,
+criatura u objeto), que decide qué fusiones tienen sentido. Las reglas están en `FUSIONES`, y las
 parejas demasiado parecidas en `PAREJAS_EVITAR`.
 
 ## Tenerla en el móvil
