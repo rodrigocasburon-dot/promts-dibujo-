@@ -70,33 +70,73 @@ body::before {
 header, main { max-width: 640px; margin: 0 auto; padding: 12px 16px; }
 main { padding-top: 0; }
 .cabecera { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
-h1 { margin: 0; font-family: var(--a-mano); font-size: 1.85rem; line-height: 1; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+h1 { margin: 0; }
+/* ---------- Lápiz del título ---------- */
+.lapiz {
+  flex: 1; min-width: 0; height: 34px; display: flex; align-items: stretch;
+  transform: rotate(-1.2deg);
+  filter: drop-shadow(0 4px 3px rgba(0, 0, 0, .28));
+}
+.lapiz .goma {
+  width: 16px; flex-shrink: 0; border-radius: 7px 0 0 7px;
+  background: linear-gradient(#ffb3bf 0%, #f08a9b 45%, #d9697d 75%, #b9566a 100%);
+}
+.lapiz .virola {
+  width: 20px; flex-shrink: 0;
+  background:
+    repeating-linear-gradient(90deg, rgba(0,0,0,.22) 0 1.5px, transparent 1.5px 4px),
+    linear-gradient(#fbfbfb 0%, #cfcfcf 30%, #8f8f8f 55%, #d6d6d6 80%, #9a9a9a 100%);
+}
+/* Cuerpo hexagonal: las bandas imitan las caras del lápiz */
+.lapiz .cuerpo {
+  flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 0 6px; overflow: hidden; white-space: nowrap;
+  background: linear-gradient(#ffe682 0%, #ffd84a 28%, #f3bf1a 33%, #f8cb34 62%, #e0a90b 67%, #c08600 100%);
+}
+.lapiz .grabado, .lapiz .marca {
+  font: 700 .82rem/1 Georgia, "Times New Roman", serif; text-transform: uppercase; letter-spacing: .1em;
+  /* letras grabadas: oscuras con un brillo justo debajo */
+  color: #5c3f00; text-shadow: 0 1px 0 rgba(255, 255, 255, .55), 0 -1px 0 rgba(0, 0, 0, .18);
+  overflow: hidden; text-overflow: ellipsis;
+}
+.lapiz .marca { font-size: .7rem; opacity: .75; }
+.lapiz .punta { width: 40px; height: 34px; flex-shrink: 0; display: block; }
+/* Móviles estrechos: se quita «HB» y se aprietan las letras */
+@media (max-width: 370px) {
+  .lapiz .marca { display: none; }
+  .lapiz .grabado { font-size: .74rem; letter-spacing: .06em; }
+  .lapiz .goma { width: 12px; } .lapiz .virola { width: 16px; } .lapiz .punta { width: 34px; }
+  .tab { font-size: .78rem; padding: 9px 2px; }
+}
 h2 { font-family: var(--a-mano); font-size: 1.6rem; margin: 24px 0 8px; }
 small { color: var(--suave); }
 
 /* ---------- Iconos dibujados ---------- */
 .ico { width: 1.25em; height: 1.25em; vertical-align: -.25em; flex-shrink: 0; }
 button .ico + span, button span + .ico { margin-left: .35em; }
-h1 .ico { width: .9em; height: .9em; color: var(--acento); }
+
 
 /* Bordes «a mano»: radios irregulares */
-.trazo, .tab, .acciones button, .resultados button, #btn-prorroga, #btn-salir, .tema select {
+.trazo, .tab, .acciones button, .resultados button, #btn-prorroga, #btn-salir {
   border-radius: 255px 18px 225px 18px / 18px 225px 18px 255px;
 }
 
 /* ---------- Selector de tema ---------- */
-.tema { position: relative; display: flex; align-items: center; color: var(--suave); }
-.tema .ico { position: absolute; left: 8px; pointer-events: none; }
+.tema {
+  position: relative; flex-shrink: 0; width: 40px; height: 36px; display: flex; align-items: center; justify-content: center;
+  color: var(--texto); background: var(--tarjeta); border: 1.5px solid var(--borde);
+  border-radius: 255px 18px 225px 18px / 18px 225px 18px 255px;
+}
+.tema .ico { width: 1.4em; height: 1.4em; pointer-events: none; }
 .tema select {
-  appearance: none; -webkit-appearance: none; font: inherit; font-size: .85rem;
-  padding: 5px 8px 5px 30px; color: var(--texto); background: var(--tarjeta); max-width: 120px;
-  border: 1.5px solid var(--borde); cursor: pointer;
+  position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;
+  appearance: none; -webkit-appearance: none; font-size: 16px;
 }
 
 /* ---------- Pestañas ---------- */
 nav { display: flex; gap: 6px; }
 .tab {
-  flex: 1; padding: 9px 4px; font-size: .9rem; cursor: pointer;
+  flex: 1; padding: 9px 4px; font-size: .9rem; cursor: pointer; white-space: nowrap;
   border: 1.5px solid var(--borde); background: var(--tarjeta); color: var(--texto);
 }
 .tab.activa { background: var(--trazo); color: var(--fondo); border-color: var(--trazo); }
@@ -344,7 +384,26 @@ th { color: var(--suave); font-weight: 600; }
   </svg>
   <header>
     <div class="cabecera">
-      <h1><svg class="ico"><use href="#i-lapiz"/></svg>Prompts de Dibujo</h1>
+      <!-- Título grabado en un lápiz horizontal -->
+      <h1 class="lapiz">
+        <span class="goma"></span>
+        <span class="virola"></span>
+        <span class="cuerpo"><span class="grabado">Prompts de Dibujo</span><span class="marca">HB</span></span>
+        <svg class="punta" viewBox="0 0 40 34" preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="madera" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#f6dcb4"/><stop offset=".5" stop-color="#e8c08a"/><stop offset="1" stop-color="#c99a62"/>
+            </linearGradient>
+            <linearGradient id="mina" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#6b6b6b"/><stop offset=".5" stop-color="#3a3a3a"/><stop offset="1" stop-color="#1f1f1f"/>
+            </linearGradient>
+          </defs>
+          <!-- madera afilada, con el borde ondulado del sacapuntas -->
+          <path d="M0 0 C3 3 1 6 4 8.5 C1 11 3 14 0 17 C3 20 1 23 4 25.5 C1 28 3 31 0 34 L40 17 Z" fill="url(#madera)"/>
+          <!-- mina de grafito -->
+          <path d="M27 11.5 L40 17 L27 22.5 C28.2 20.5 28.2 13.5 27 11.5 Z" fill="url(#mina)"/>
+        </svg>
+      </h1>
       <label class="tema" title="Tema">
         <svg class="ico"><use href="#i-paleta"/></svg>
         <select id="tema" aria-label="Tema">
@@ -1674,7 +1733,7 @@ function pintarProgreso() {
 //  Al abrir la app (o volver a ella) comprueba si hay una versión nueva
 //  publicada y, si la hay, la carga. Cambia VERSION en cada cambio.
 // =====================================================================
-var VERSION = "2026-10-14.3";
+var VERSION = "2026-10-14.4";
 
 function buscarActualizacion() {
   if (location.protocol === "file:" || !window.fetch) return;
