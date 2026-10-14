@@ -222,8 +222,11 @@ input[type=radio], input[type=checkbox] { accent-color: var(--acento); }
   display: inline-flex; align-items: center; justify-content: center;
   border: 1.5px solid var(--trazo); background: var(--tarjeta); color: var(--texto);
 }
+/* Botones principales (Nuevo prompt, Empezar/Continuar): verde como el lápiz del título */
 .acciones .principal {
-  background: var(--acento); color: var(--acento-texto); border-color: var(--acento); flex: 2;
+  flex: 2; color: #fdf6e3; border-color: #0f3d24;
+  background: linear-gradient(#3a865a 0%, #2a6e47 30%, #1d5a39 70%, #164a2e 100%);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, .35);
 }
 .acciones button:active { transform: translateY(1px) rotate(-.5deg); }
 #btn-no { flex: 0 0 56px; }
@@ -1776,7 +1779,7 @@ function pintarProgreso() {
 //  Al abrir la app (o volver a ella) comprueba si hay una versión nueva
 //  publicada y, si la hay, la carga. Cambia VERSION en cada cambio.
 // =====================================================================
-var VERSION = "2026-10-14.6";
+var VERSION = "2026-10-14.7";
 
 function buscarActualizacion() {
   if (location.protocol === "file:" || !window.fetch) return;
