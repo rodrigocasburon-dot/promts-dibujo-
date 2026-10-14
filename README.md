@@ -74,3 +74,19 @@ parejas demasiado parecidas en `PAREJAS_EVITAR`.
    - **Android (Chrome)**: menú ⋮ → *Añadir a pantalla de inicio* / *Instalar app*.
 
 Cada vez que se suban cambios al repositorio, la app del móvil se actualiza sola.
+
+## Aspecto visual
+
+- **Temas** (botón de la paleta, arriba a la derecha): Automático (papel de día, pizarra
+  de noche), Papel, Kraft y Pizarra.
+- **Pósit**: el prompt aparece en un pósit escrito a mano, de color según el nivel
+  (amarillo: palabra, rosa: + acción, azul: + lugar). Se da la vuelta al generar uno nuevo.
+- **Modo dibujo**: temporizador circular con los colores de las fases.
+- **Celebración** al marcar «Lo acabé» y **racha** de días seguidos en Progreso.
+
+## Recursos
+
+- `recursos/papel.jpg`: textura de papel arrugado del fondo.
+- `recursos/caveat-700.woff2`: tipografía Caveat (The Caveat Project Authors), licencia
+  SIL Open Font License 1.1, incluida en `recursos/caveat-OFL.txt`.
+

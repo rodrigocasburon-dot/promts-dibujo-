@@ -1,9 +1,14 @@
 <!doctype html>
-<html lang="es">
+<html lang="es" data-tema="auto">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Prompts de Dibujo</title>
+  <script>
+    // Aplica el tema guardado antes de pintar, para que no parpadee
+    try { document.documentElement.dataset.tema = JSON.parse(localStorage.getItem("prompts-dibujo:tema")) || "auto"; } catch (e) {}
+  </script>
+  <link rel="preload" href="recursos/caveat-700.woff2" as="font" type="font/woff2" crossorigin>
   <meta http-equiv="Cache-Control" content="no-cache">
   <meta name="theme-color" content="#e2584a">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -13,39 +18,96 @@
   <link rel="icon" href="icono-192.png">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <style>
+/* ---------- Letra a mano (Caveat, licencia OFL: recursos/caveat-OFL.txt) ---------- */
+@font-face {
+  font-family: "Caveat"; font-weight: 700; font-display: swap;
+  src: url("recursos/caveat-700.woff2") format("woff2");
+}
+
+/* ---------- Temas ----------
+   papel (por defecto), kraft y pizarra. «auto» = papel de día y pizarra de noche. */
 :root {
-  --fondo: #faf7f2; --texto: #2b2620; --suave: #8a8073;
-  --acento: #e2584a; --tarjeta: #fff; --borde: #e6dfd4;
-  --f1: #e9a23b; --f2: #e2584a; --f3: #9b4d96;
+  --texto: #2b2620; --suave: #7d7366; --acento: #d9493a; --acento-texto: #fff;
+  --tarjeta: rgba(255, 255, 255, .72); --borde: rgba(60, 50, 40, .22); --trazo: #2b2620;
+  --capa: transparent; --mezcla: normal; --fondo: #f3f1ee;
+  --f1: #e9a23b; --f2: #d9493a; --f3: #9b4d96;
+  --postit-1: #fff27a; --postit-2: #ffb8cf; --postit-3: #a9dcf7; --postit-texto: #2b2620;
+  --a-mano: "Caveat", "Segoe Print", "Bradley Hand", cursive;
+}
+:root[data-tema="kraft"] {
+  --texto: #2e2216; --suave: #6b5640; --acento: #b23b26;
+  --tarjeta: rgba(255, 246, 228, .6); --borde: rgba(70, 45, 20, .28); --trazo: #2e2216;
+  --capa: #c9a372; --mezcla: multiply; --fondo: #c9a372;
+}
+:root[data-tema="pizarra"] {
+  --texto: #eef0e8; --suave: #a9b3a8; --acento: #ff8a73; --acento-texto: #1d2420;
+  --tarjeta: rgba(20, 28, 25, .55); --borde: rgba(230, 240, 230, .18); --trazo: #eef0e8;
+  --capa: #2c3833; --mezcla: multiply; --fondo: #2c3833;
+  --f1: #f0b04d; --f2: #ff8a73; --f3: #c995c5;
 }
 @media (prefers-color-scheme: dark) {
-  :root { --fondo: #1d1b19; --texto: #f1ece4; --suave: #a59c90;
-          --acento: #ff7a6b; --tarjeta: #282522; --borde: #3a3632;
-          --f1: #f0b04d; --f2: #ff7a6b; --f3: #c27cbd; }
+  :root[data-tema="auto"] {
+    --texto: #eef0e8; --suave: #a9b3a8; --acento: #ff8a73; --acento-texto: #1d2420;
+    --tarjeta: rgba(20, 28, 25, .55); --borde: rgba(230, 240, 230, .18); --trazo: #eef0e8;
+    --capa: #2c3833; --mezcla: multiply; --fondo: #2c3833;
+    --f1: #f0b04d; --f2: #ff8a73; --f3: #c995c5;
+  }
 }
+
 * { box-sizing: border-box; }
+html { background: var(--fondo); }
 body {
-  margin: 0; font-family: system-ui, sans-serif;
-  background: var(--fondo); color: var(--texto);
+  margin: 0; font-family: system-ui, -apple-system, sans-serif;
+  color: var(--texto); background: transparent; min-height: 100vh;
 }
+/* Fondo de papel arrugado (fijo, también en iPhone) */
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: -1;
+  background: var(--capa) url("recursos/papel.jpg") center / cover;
+  background-blend-mode: var(--mezcla);
+}
+
 header, main { max-width: 640px; margin: 0 auto; padding: 12px 16px; }
 main { padding-top: 0; }
-h1 { margin: 0 0 10px; font-size: 1.35rem; }
-h2 { font-size: 1.1rem; margin-top: 28px; }
-nav { display: flex; gap: 8px; }
+.cabecera { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+h1 { margin: 0; font-family: var(--a-mano); font-size: 1.85rem; line-height: 1; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+h2 { font-family: var(--a-mano); font-size: 1.6rem; margin: 24px 0 8px; }
+small { color: var(--suave); }
+
+/* ---------- Iconos dibujados ---------- */
+.ico { width: 1.25em; height: 1.25em; vertical-align: -.25em; flex-shrink: 0; }
+button .ico + span, button span + .ico { margin-left: .35em; }
+h1 .ico { width: .9em; height: .9em; color: var(--acento); }
+
+/* Bordes «a mano»: radios irregulares */
+.trazo, .tab, .acciones button, .resultados button, #btn-prorroga, #btn-salir, .tema select {
+  border-radius: 255px 18px 225px 18px / 18px 225px 18px 255px;
+}
+
+/* ---------- Selector de tema ---------- */
+.tema { position: relative; display: flex; align-items: center; color: var(--suave); }
+.tema .ico { position: absolute; left: 8px; pointer-events: none; }
+.tema select {
+  appearance: none; -webkit-appearance: none; font: inherit; font-size: .85rem;
+  padding: 5px 8px 5px 30px; color: var(--texto); background: var(--tarjeta); max-width: 120px;
+  border: 1.5px solid var(--borde); cursor: pointer;
+}
+
+/* ---------- Pestañas ---------- */
+nav { display: flex; gap: 6px; }
 .tab {
-  flex: 1; padding: 10px; border: 1px solid var(--borde); border-radius: 8px;
-  background: var(--tarjeta); color: var(--texto); font-size: 1rem; cursor: pointer;
+  flex: 1; padding: 9px 4px; font-size: .9rem; cursor: pointer;
+  border: 1.5px solid var(--borde); background: var(--tarjeta); color: var(--texto);
 }
-.tab.activa { background: var(--acento); color: #fff; border-color: var(--acento); }
+.tab.activa { background: var(--trazo); color: var(--fondo); border-color: var(--trazo); }
 .tab span { font-size: .8rem; opacity: .8; }
-fieldset { border: 1px solid var(--borde); border-radius: 8px; margin: 0 0 12px; padding: 8px 12px; }
-/* Ajustes desplegables */
+
+/* ---------- Ajustes desplegables ---------- */
 .ajustes {
-  background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 12px;
-  margin-bottom: 12px; overflow: hidden;
+  background: var(--tarjeta); border: 1.5px solid var(--borde); border-radius: 14px 10px 16px 9px;
+  margin-bottom: 14px; overflow: hidden; backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
 }
-.ajustes details + details { border-top: 1px solid var(--borde); }
+.ajustes details + details { border-top: 1px dashed var(--borde); }
 .ajustes summary {
   display: flex; justify-content: space-between; align-items: center; gap: 8px;
   padding: 9px 14px; cursor: pointer; font-weight: 600; list-style: none;
@@ -58,80 +120,86 @@ fieldset { border: 1px solid var(--borde); border-radius: 8px; margin: 0 0 12px;
 .ajustes summary::after { content: "▾"; color: var(--suave); transition: transform .2s; }
 .ajustes details[open] summary::after { transform: rotate(180deg); }
 .ajustes details[open] summary span { display: none; }
+/* Punto de color del nivel (mismo color que el pósit) */
+.punto { display: inline-block; width: .7em; height: .7em; border-radius: 50%; margin-right: 6px;
+  background: var(--postit-1); border: 1px solid var(--borde); vertical-align: 0; }
+.punto[data-nivel="2"] { background: var(--postit-2); }
+.punto[data-nivel="3"] { background: var(--postit-3); }
 .opciones { padding: 0 14px 10px; }
 .opciones label { display: block; padding: 7px 0; cursor: pointer; }
 .nota-auto { display: block; margin-top: 8px; }
-legend { font-weight: 600; padding: 0 4px; }
-fieldset label, .interruptor { display: block; padding: 6px 0; cursor: pointer; }
-.interruptor { margin-bottom: 12px; }
-small { color: var(--suave); }
-.tarjeta {
-  background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 12px;
-  padding: 20px 16px; text-align: center; min-height: 100px;
+input[type=radio], input[type=checkbox] { accent-color: var(--acento); }
+
+/* ---------- Pósit del prompt (color según nivel) ---------- */
+.postit {
+  position: relative; color: var(--postit-texto); background: var(--postit-1);
+  padding: 22px 18px 18px; text-align: center; min-height: 104px;
+  display: flex; flex-direction: column; justify-content: center;
+  transform: rotate(-1.2deg);
+  box-shadow: 0 1px 1px rgba(0,0,0,.08), 0 10px 18px -6px rgba(0,0,0,.28);
+  background-image: linear-gradient(rgba(0,0,0,.06), rgba(0,0,0,0) 22px);
+  border-radius: 2px 2px 3px 18px / 2px 2px 3px 6px;
 }
-#prompt { font-size: 1.8rem; font-weight: 700; margin: 0; }
-#prompt::first-letter { text-transform: uppercase; }
-#aviso { color: var(--suave); font-size: .9rem; margin: 8px 0 0; }
-.acciones { display: flex; gap: 8px; margin-top: 12px; }
+.postit[data-nivel="2"] { background-color: var(--postit-2); transform: rotate(1deg); }
+.postit[data-nivel="3"] { background-color: var(--postit-3); transform: rotate(-.6deg); }
+/* tira de celo */
+.postit::before {
+  content: ""; position: absolute; top: -10px; left: 50%; width: 84px; height: 22px;
+  transform: translateX(-50%) rotate(-3deg);
+  background: rgba(255, 255, 255, .55); border: 1px solid rgba(0,0,0,.06);
+  box-shadow: 0 1px 2px rgba(0,0,0,.08);
+}
+.texto-mano { font-family: var(--a-mano); font-weight: 700; line-height: 1.05; margin: 0; }
+.texto-mano::first-letter { text-transform: uppercase; }
+#prompt { font-size: 2.3rem; }
+#aviso { color: rgba(43,38,32,.65); font-size: .85rem; margin: 6px 0 0; }
+/* Animación al generar: el pósit se da la vuelta */
+@keyframes voltear {
+  0% { transform: perspective(600px) rotateY(90deg) rotate(var(--giro, -1.2deg)); opacity: .3; }
+  100% { transform: perspective(600px) rotateY(0) rotate(var(--giro, -1.2deg)); opacity: 1; }
+}
+.postit.volteo { animation: voltear .45s cubic-bezier(.2,.8,.3,1.2); }
+.postit[data-nivel="2"] { --giro: 1deg; }
+.postit[data-nivel="3"] { --giro: -.6deg; }
+@media (prefers-reduced-motion: reduce) { .postit.volteo { animation: none; } }
+
+/* ---------- Botones ---------- */
+.acciones { display: flex; gap: 8px; margin-top: 16px; }
 .acciones button {
-  min-width: 0;
-  flex: 1; padding: 14px; font-size: 1.05rem; border-radius: 8px; cursor: pointer;
-  border: 1px solid var(--borde); background: var(--tarjeta); color: var(--texto);
+  min-width: 0; flex: 1; padding: 13px 10px; font-size: 1.02rem; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1.5px solid var(--trazo); background: var(--tarjeta); color: var(--texto);
 }
-.acciones .principal { background: var(--acento); color: #fff; border-color: var(--acento); flex: 2; }
-#btn-no { flex: 0 0 60px; }
-.acciones button:disabled { opacity: .5; cursor: default; }
-.lista { list-style: none; padding: 0; margin: 0; }
-.lista li {
-  display: flex; justify-content: space-between; align-items: center; gap: 8px;
-  padding: 10px 0; border-bottom: 1px solid var(--borde);
+.acciones .principal {
+  background: var(--acento); color: var(--acento-texto); border-color: var(--acento); flex: 2; font-weight: 600;
 }
-.lista li span::first-letter { text-transform: uppercase; }
-.lista li div { display: flex; gap: 4px; flex-shrink: 0; }
-.lista button { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--acento); }
-.ayuda { color: var(--suave); }
-.oculta { display: none !important; }
-.version { text-align: center; color: var(--suave); font-size: .75rem; margin-top: 32px; }
-.tab { padding: 10px 4px; font-size: .9rem; }
-/* Modo dibujo */
-#enfoque {
-  position: fixed; inset: 0; z-index: 10; overflow-y: auto;
-  background: var(--fondo);
-}
-.enfoque-caja { max-width: 640px; margin: 0 auto; padding: 16px; display: flex; flex-direction: column; min-height: 100%; }
-#btn-salir {
-  align-self: flex-end; padding: 8px 14px; border-radius: 8px; cursor: pointer;
-  border: 1px solid var(--borde); background: var(--tarjeta); color: var(--texto); font-size: 1rem;
-}
-#enfoque-prompt { font-size: 2.2rem; font-weight: 700; text-align: center; margin: 32px 0 8px; }
-#enfoque-prompt::first-letter { text-transform: uppercase; }
-#enfoque .temporizador { background: none; border: none; padding: 0; }
-#enfoque .temporizador h2, #enfoque .tiempos { display: none; }
-#enfoque #reloj { font-size: 5rem; margin-top: 12px; }
-#enfoque > .enfoque-caja > .acciones { margin-top: auto; padding-top: 24px; }
-body.dibujando { overflow: hidden; }
+.acciones button:active { transform: translateY(1px) rotate(-.5deg); }
+#btn-no { flex: 0 0 56px; }
+.acciones button:disabled { opacity: .45; cursor: default; }
+
+/* ---------- Temporizador ---------- */
 .temporizador {
-  margin-top: 12px; background: var(--tarjeta); border: 1px solid var(--borde);
-  border-radius: 12px; padding: 12px 16px; text-align: center;
+  margin-top: 14px; background: var(--tarjeta); border: 1.5px solid var(--borde);
+  border-radius: 10px 16px 9px 14px; padding: 12px 16px; text-align: center;
+  backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
 }
-.temporizador h2 { margin: 0 0 12px; }
 .tiempos { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
 .tiempos button {
-  padding: 8px 12px; border-radius: 999px; border: 1px solid var(--borde);
-  background: var(--fondo); color: var(--texto); font-size: .95rem; cursor: pointer;
+  padding: 7px 12px; border: 1.5px solid var(--borde); background: var(--tarjeta); color: var(--texto);
+  font-size: .95rem; cursor: pointer; border-radius: 999px 900px 999px 900px;
 }
-.tiempos button.activa { background: var(--acento); color: #fff; border-color: var(--acento); }
+.tiempos button.activa { background: var(--acento); color: var(--acento-texto); border-color: var(--acento); }
 .tiempos button:disabled { opacity: .5; cursor: default; }
-#reloj {
-  font-size: 2.6rem; font-weight: 700; margin: 0;
-  font-variant-numeric: tabular-nums;
-}
+.anillo-caja { position: relative; }
+.anillo { display: none; }
+#reloj { font-size: 2.6rem; font-weight: 700; margin: 0; font-variant-numeric: tabular-nums; }
 #reloj.fin, #reloj.prorroga { color: var(--acento); }
+#reloj.fin { font-family: var(--a-mano); }
 #fase { min-height: 1.4em; margin: 2px 0 8px; font-weight: 600; }
 #fase small { font-weight: 400; }
-/* Barra dividida en fases: encaje 20 %, desarrollo 60 %, remates 20 % */
+/* Barra dividida en fases (pantalla principal): encaje 20 %, desarrollo 60 %, remates 20 % */
 .barra { display: flex; gap: 3px; }
-.tramo { height: 10px; background: var(--borde); border-radius: 4px; overflow: hidden; }
+.tramo { height: 9px; background: var(--borde); border-radius: 4px; overflow: hidden; }
 .tramo div { height: 100%; width: 0; }
 .tramo:nth-child(1) { flex: 20; } .tramo:nth-child(1) div { background: var(--f1); }
 .tramo:nth-child(2) { flex: 60; } .tramo:nth-child(2) div { background: var(--f2); }
@@ -139,38 +207,154 @@ body.dibujando { overflow: hidden; }
 .nombres-fases { display: flex; gap: 3px; font-size: .75rem; color: var(--suave); margin-top: 4px; }
 .nombres-fases span:nth-child(1), .nombres-fases span:nth-child(3) { flex: 20; }
 .nombres-fases span:nth-child(2) { flex: 60; }
-#final { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--borde); }
-#final p { margin: 0 0 8px; }
+#final { margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--borde); }
+#final p { margin: 0 0 8px; font-family: var(--a-mano); font-size: 1.5rem; }
 #btn-prorroga {
-  width: 100%; margin-bottom: 14px; padding: 14px; font-size: 1.05rem; border-radius: 8px;
-  cursor: pointer; background: var(--f3); color: #fff; border: none;
+  width: 100%; margin-bottom: 12px; padding: 13px; font-size: 1.02rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--f3); color: #fff; border: 1.5px solid var(--f3);
 }
 .resultados { display: flex; gap: 6px; }
 .resultados button {
-  flex: 1; padding: 12px 4px; border-radius: 8px; border: 1px solid var(--borde);
-  background: var(--fondo); color: var(--texto); font-size: .95rem; cursor: pointer;
+  flex: 1; padding: 10px 4px; border: 1.5px solid var(--trazo); background: var(--tarjeta);
+  color: var(--texto); font-size: .92rem; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
 }
-/* Progreso */
-.cifras { display: flex; gap: 8px; margin-bottom: 8px; }
+.resultados .ico { width: 1.6em; height: 1.6em; }
+
+/* ---------- Modo dibujo ---------- */
+#enfoque { position: fixed; inset: 0; z-index: 10; overflow-y: auto; }
+#enfoque::before {
+  content: ""; position: fixed; inset: 0; z-index: -1;
+  background: var(--capa) url("recursos/papel.jpg") center / cover;
+  background-blend-mode: var(--mezcla);
+}
+.enfoque-caja { max-width: 640px; margin: 0 auto; padding: 16px; display: flex; flex-direction: column; min-height: 100%; }
+#btn-salir {
+  align-self: flex-end; padding: 7px 14px; cursor: pointer; font-size: 1rem;
+  display: inline-flex; align-items: center;
+  border: 1.5px solid var(--trazo); background: var(--tarjeta); color: var(--texto);
+}
+#enfoque .postit { margin: 22px 6px 6px; }
+#enfoque-prompt { font-size: 2.6rem; }
+#enfoque .temporizador { background: none; border: none; padding: 0; backdrop-filter: none; -webkit-backdrop-filter: none; }
+#enfoque .tiempos, #enfoque .barra, #enfoque .nombres-fases { display: none; }
+/* Temporizador circular en modo dibujo */
+#enfoque .anillo { display: block; width: min(68vw, 270px); height: auto; margin: 18px auto 0; transform: rotate(-90deg); }
+#enfoque #reloj {
+  position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%);
+  font-size: min(13vw, 3.4rem);
+}
+#enfoque #reloj.fin { font-size: min(14vw, 3.6rem); }
+.anillo circle { fill: none; stroke-width: 12; stroke-linecap: round; }
+.anillo .pista { stroke: var(--borde); }
+.anillo .relleno-1 { stroke: var(--f1); } .anillo .relleno-2 { stroke: var(--f2); } .anillo .relleno-3 { stroke: var(--f3); }
+#enfoque #fase { margin-top: 10px; }
+#enfoque > .enfoque-caja > .acciones { margin-top: auto; padding-top: 20px; }
+body.dibujando { overflow: hidden; }
+
+/* ---------- Confeti al acabar un dibujo ---------- */
+.confeti { position: fixed; inset: 0; pointer-events: none; z-index: 30; overflow: hidden; }
+.confeti i {
+  position: absolute; top: -12px; width: 9px; height: 14px; border-radius: 2px;
+  animation: caer 1.6s cubic-bezier(.3,.6,.6,1) forwards;
+}
+@keyframes caer {
+  to { transform: translateY(105vh) rotate(var(--r, 540deg)); opacity: .9; }
+}
+.bien {
+  position: fixed; left: 50%; top: 38%; z-index: 31; pointer-events: none;
+  font-family: var(--a-mano); font-weight: 700; font-size: 4rem; color: var(--acento);
+  transform: translate(-50%, -50%) rotate(-6deg); animation: aparecer 1.6s ease forwards;
+  text-shadow: 0 2px 0 var(--fondo);
+}
+@keyframes aparecer {
+  0% { opacity: 0; transform: translate(-50%, -50%) rotate(-6deg) scale(.6); }
+  20% { opacity: 1; transform: translate(-50%, -50%) rotate(-6deg) scale(1.08); }
+  75% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -60%) rotate(-6deg) scale(1); }
+}
+@media (prefers-reduced-motion: reduce) { .confeti { display: none; } }
+
+/* ---------- Listas ---------- */
+.lista { list-style: none; padding: 0; margin: 0; }
+.lista li {
+  display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  padding: 10px 0; border-bottom: 1px dashed var(--borde);
+}
+.lista li span::first-letter { text-transform: uppercase; }
+.lista li div { display: flex; gap: 4px; flex-shrink: 0; }
+.lista button { background: none; border: none; font-size: 1.15rem; cursor: pointer; color: var(--acento); padding: 4px; }
+.ayuda { color: var(--suave); }
+.oculta { display: none !important; }
+.version { text-align: center; color: var(--suave); font-size: .75rem; margin-top: 32px; }
+
+/* ---------- Progreso ---------- */
+.cifras { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 8px; }
 .cifra {
-  flex: 1; background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 12px;
-  padding: 12px 8px; text-align: center;
+  background: var(--tarjeta); border: 1.5px solid var(--borde); border-radius: 12px 8px 14px 9px;
+  padding: 10px 8px; text-align: center;
 }
-.cifra b { display: block; font-size: 1.6rem; }
+.cifra b { display: block; font-family: var(--a-mano); font-size: 2.2rem; line-height: 1; }
 .cifra span { font-size: .8rem; color: var(--suave); }
+.cifra.racha b { color: var(--acento); display: flex; align-items: center; justify-content: center; gap: 4px; }
 table { width: 100%; border-collapse: collapse; font-size: .9rem; }
-th, td { padding: 8px 4px; border-bottom: 1px solid var(--borde); text-align: center; }
+th, td { padding: 8px 4px; border-bottom: 1px dashed var(--borde); text-align: center; }
 th:first-child, td:first-child { text-align: left; }
 th { color: var(--suave); font-weight: 600; }
-.consejo { background: var(--tarjeta); border-left: 4px solid var(--acento); padding: 10px 12px; border-radius: 4px; }
+.consejo {
+  background: var(--postit-1); color: var(--postit-texto); padding: 10px 12px;
+  transform: rotate(-.6deg); box-shadow: 0 6px 12px -6px rgba(0,0,0,.3);
+  display: flex; gap: 8px; align-items: flex-start;
+}
 .sesion small { display: block; }
-.peligro { margin-top: 20px; background: none; border: 1px solid var(--borde); color: var(--suave);
-  padding: 8px 12px; border-radius: 8px; cursor: pointer; }
+.res-ico { color: var(--acento); }
+.peligro {
+  margin-top: 20px; background: none; border: 1.5px solid var(--borde); color: var(--suave);
+  padding: 8px 12px; border-radius: 8px; cursor: pointer;
+}
   </style>
 </head>
 <body>
+  <!-- Iconos dibujados a mano (trazo con un leve temblor de lápiz) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <filter id="lapiz" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" seed="4"/>
+        <feDisplacementMap in="SourceGraphic" scale="1.1"/>
+      </filter>
+    </defs>
+    <symbol id="i-lapiz" viewBox="0 0 24 24"><g filter="url(#lapiz)" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16.6 3.4c1.1-1 2.8-.9 3.8.2 1 1 .9 2.6-.1 3.6L7.6 19.9l-4.9 1.4 1.3-4.9L16.6 3.4z"/><path d="M14.5 5.6l3.8 3.8"/></g></symbol>
+    <symbol id="i-dado" viewBox="0 0 24 24"><g filter="url(#lapiz)" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5.3 4.4c4.4-.6 9.4-.4 14 .3.6 4.6.5 9.6-.1 14.4-4.6.6-9.6.5-14.4-.1-.6-4.6-.5-9.8.5-14.6z"/><circle cx="8.6" cy="8.5" r="1.1" fill="currentColor"/><circle cx="12.1" cy="12" r="1.1" fill="currentColor"/><circle cx="15.6" cy="15.5" r="1.1" fill="currentColor"/></g></symbol>
+    <symbol id="i-estrella" viewBox="0 0 24 24"><g filter="url(#lapiz)" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.8l2.9 6 6.5.8-4.8 4.5 1.3 6.5L12 17.4l-5.8 3.2 1.2-6.5-4.8-4.5 6.6-.8z"/></g></symbol>
+    <symbol id="i-estrella-llena" viewBox="0 0 24 24"><g filter="url(#lapiz)" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.8l2.9 6 6.5.8-4.8 4.5 1.3 6.5L12 17.4l-5.8 3.2 1.2-6.5-4.8-4.5 6.6-.8z"/></g></symbol>
+    <symbol id="i-no" viewBox="0 0 24 24"><g filter="url(#lapiz)" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2.2H5.8a2 2 0 0 0-2 1.7l-1.4 9a2 2 0 0 0 2 2.3z"/><path d="M17 2.2h2.6A2.3 2.3 0 0 1 22 4.4v6.8A2.3 2.3 0 0 1 19.6 13H17"/></g></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><g filter="url(#lapiz)" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6.2 3.6c4.5 2.6 8.6 5.3 12.6 8.3-4 3-8.2 5.8-12.6 8.4-.3-5.6-.3-11.1 0-16.7z"/></g></symbol>
+    <symbol id="i-pausa" viewBox="0 0 24 24"><g filter="url(#lapiz)" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6.4 4.2h3.4v15.6H6.2zM14.3 4.1h3.4l-.1 15.8h-3.3z"/></g></symbol>
+    <symbol id="i-reiniciar" viewBox="0 0 24 24"><g filter="url(#lapiz)" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4.2v5.9h5.9"/><path d="M4.3 15a8.6 8.6 0 1 0 2-8.9L2.5 10"/></g></symbol>
+    <symbol id="i-cerrar" viewBox="0 0 24 24"><g filter="url(#lapiz)" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5.5 5.8c4.3 4 8.6 8.2 13 12.5M18.4 5.4c-4.1 4.4-8.3 8.7-12.7 13"/></g></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><g filter="url(#lapiz)" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3.8 12.6c1.8 1.7 3.4 3.4 5 5.3 3.4-4.6 7-8.8 11.3-12.6"/></g></symbol>
+    <symbol id="i-casi" viewBox="0 0 24 24"><g filter="url(#lapiz)" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 1-.1 0z"/><path d="M12 3a9 9 0 0 1 0 18" fill="currentColor" opacity=".35"/><path d="M12 7v5l3 2"/></g></symbol>
+    <symbol id="i-arena" viewBox="0 0 24 24"><g filter="url(#lapiz)" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2.6h12M6 21.4h12"/><path d="M7.2 2.8c0 4.6 9.6 5.4 9.6 9.2s-9.6 4.6-9.6 9.2M16.8 2.8c0 4.6-9.6 5.4-9.6 9.2s9.6 4.6 9.6 9.2"/><path d="M9.6 19.6c1.4-1.3 3.4-1.3 4.8 0" /></g></symbol>
+    <symbol id="i-volver" viewBox="0 0 24 24"><g filter="url(#lapiz)" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14.2L4 9.1 9 4"/><path d="M20.2 20v-7a4 4 0 0 0-4-4H4.2"/></g></symbol>
+    <symbol id="i-mas" viewBox="0 0 24 24"><g filter="url(#lapiz)" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12.2 4.5c-.2 5-.1 10 .1 15M4.6 12.1c4.9.2 9.8.1 14.8-.2"/></g></symbol>
+    <symbol id="i-bombilla" viewBox="0 0 24 24"><g filter="url(#lapiz)" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18.2h6M10.2 21.6h3.6"/><path d="M12 2.4a6.8 6.8 0 0 0-3.9 12.4v3.2h7.8v-3.2A6.8 6.8 0 0 0 12 2.4z"/></g></symbol>
+    <symbol id="i-llama" viewBox="0 0 24 24"><g filter="url(#lapiz)" fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M12 22c4 0 7-2.9 7-6.9 0-4.7-3.6-6.8-4.9-11.1-1.9 1.7-2.7 3.7-2.6 5.7-1.1-.8-2.1-2-2.4-3.6C7 8.2 5 10.9 5 15.1 5 19.1 8 22 12 22z"/></g></symbol>
+    <symbol id="i-paleta" viewBox="0 0 24 24"><g filter="url(#lapiz)" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.6c-5.4 0-9.6 4-9.6 9.2 0 5.1 4.2 9.6 9 9.6 1.6 0 2-1.2 1.4-2.3-.7-1.3.2-2.8 1.8-2.8h2.6c2.6 0 4.4-2 4.4-4.4 0-5.3-4.5-9.3-9.6-9.3z"/><circle cx="7.4" cy="11" r="1.2" fill="currentColor"/><circle cx="10" cy="6.9" r="1.2" fill="currentColor"/><circle cx="15" cy="7" r="1.2" fill="currentColor"/></g></symbol>
+  </svg>
   <header>
-    <h1>✏️ Prompts de Dibujo</h1>
+    <div class="cabecera">
+      <h1><svg class="ico"><use href="#i-lapiz"/></svg>Prompts de Dibujo</h1>
+      <label class="tema" title="Tema">
+        <svg class="ico"><use href="#i-paleta"/></svg>
+        <select id="tema" aria-label="Tema">
+          <option value="auto">Automático</option>
+          <option value="papel">Papel</option>
+          <option value="kraft">Kraft</option>
+          <option value="pizarra">Pizarra</option>
+        </select>
+      </label>
+    </div>
     <nav>
       <button class="tab activa" data-vista="generar">Generar</button>
       <button class="tab" data-vista="historial">Historial</button>
@@ -232,20 +416,30 @@ th { color: var(--suave); font-weight: 600; }
         </details>
       </div>
 
-      <div class="tarjeta">
-        <p id="prompt">Pulsa «Nuevo prompt»</p>
+      <div class="postit" id="postit">
+        <p id="prompt" class="texto-mano">Pulsa «Nuevo prompt»</p>
         <p id="aviso"></p>
       </div>
 
       <div class="acciones">
-        <button id="btn-generar" class="principal">🎲 Nuevo prompt</button>
-        <button id="btn-fav" disabled>☆ Favorito</button>
-        <button id="btn-no" disabled>👎</button>
+        <button id="btn-generar" class="principal"><svg class="ico"><use href="#i-dado"/></svg><span>Nuevo prompt</span></button>
+        <button id="btn-fav" disabled><svg class="ico"><use href="#i-estrella"/></svg><span>Favorito</span></button>
+        <button id="btn-no" disabled title="No me gusta"><svg class="ico"><use href="#i-no"/></svg></button>
       </div>
 
       <div id="hueco-generar"></div>
       <div class="temporizador" id="temporizador">
-        <div id="reloj">05:00</div>
+        <div class="anillo-caja">
+          <svg class="anillo" viewBox="0 0 200 200" aria-hidden="true">
+            <circle class="pista" id="pista-1" cx="100" cy="100" r="88"/>
+            <circle class="pista" id="pista-2" cx="100" cy="100" r="88"/>
+            <circle class="pista" id="pista-3" cx="100" cy="100" r="88"/>
+            <circle class="relleno-1" id="anillo-1" cx="100" cy="100" r="88"/>
+            <circle class="relleno-2" id="anillo-2" cx="100" cy="100" r="88"/>
+            <circle class="relleno-3" id="anillo-3" cx="100" cy="100" r="88"/>
+          </svg>
+          <div id="reloj">05:00</div>
+        </div>
         <p id="fase"></p>
         <div class="barra">
           <div class="tramo"><div id="tramo-1"></div></div>
@@ -254,16 +448,16 @@ th { color: var(--suave); font-weight: 600; }
         </div>
         <div class="nombres-fases"><span>Encaje</span><span>Desarrollo</span><span>Remates</span></div>
         <div class="acciones">
-          <button id="btn-tiempo" class="principal">▶ Empezar</button>
-          <button id="btn-reiniciar">↺ Reiniciar</button>
+          <button id="btn-tiempo" class="principal">Empezar</button>
+          <button id="btn-reiniciar"><svg class="ico"><use href="#i-reiniciar"/></svg><span>Reiniciar</span></button>
         </div>
         <div id="final" class="oculta">
           <button id="btn-prorroga" class="principal"></button>
           <p>¿Cómo ha ido?</p>
           <div class="resultados">
-            <button data-r="acabe">✅ Lo acabé</button>
-            <button data-r="casi">🤏 Me faltó poco</button>
-            <button data-r="no">⏳ No llegué</button>
+            <button data-r="acabe"><svg class="ico"><use href="#i-check"/></svg>Lo acabé</button>
+            <button data-r="casi"><svg class="ico"><use href="#i-casi"/></svg>Me faltó poco</button>
+            <button data-r="no"><svg class="ico"><use href="#i-arena"/></svg>No llegué</button>
           </div>
         </div>
       </div>
@@ -278,7 +472,7 @@ th { color: var(--suave); font-weight: 600; }
       <p class="ayuda">Los elementos de tus favoritos alimentan el generador «Mi zona», y el generador «Reto» los evita.</p>
       <ul id="lista-favoritos" class="lista"></ul>
 
-      <h2>Combinaciones descartadas 👎</h2>
+      <h2>Combinaciones descartadas</h2>
       <p class="ayuda">Estas combinaciones de palabra + acción + lugar no volverán a salir. Las palabras sueltas sí pueden seguir apareciendo.</p>
       <ul id="lista-descartados" class="lista"></ul>
     </section>
@@ -291,12 +485,12 @@ th { color: var(--suave); font-weight: 600; }
   <!-- Modo dibujo: solo el prompt, el tiempo y las opciones básicas -->
   <div id="enfoque" class="oculta">
     <div class="enfoque-caja">
-      <button id="btn-salir">✕ Salir</button>
-      <p id="enfoque-prompt"></p>
+      <button id="btn-salir"><svg class="ico"><use href="#i-cerrar"/></svg><span>Salir</span></button>
+      <div class="postit" id="enfoque-postit"><p id="enfoque-prompt" class="texto-mano"></p></div>
       <div id="hueco-enfoque"></div>
       <div class="acciones">
-        <button id="enfoque-fav">☆ Favorito</button>
-        <button id="enfoque-no">👎 No me gusta</button>
+        <button id="enfoque-fav"><svg class="ico"><use href="#i-estrella"/></svg><span>Favorito</span></button>
+        <button id="enfoque-no"><svg class="ico"><use href="#i-no"/></svg><span>No me gusta</span></button>
       </div>
     </div>
   </div>
@@ -890,6 +1084,13 @@ function generar() {
   historial = [p].concat(historial.filter(function (h) { return !mismo(h, p); })).slice(0, 20);
   guardar(CLAVE_HIST, historial);
 
+  // El pósit se da la vuelta y el móvil vibra un instante
+  ["postit", "enfoque-postit"].forEach(function (id) {
+    var el = document.getElementById(id);
+    el.classList.remove("volteo"); void el.offsetWidth; el.classList.add("volteo");
+  });
+  try { if (navigator.vibrate) navigator.vibrate(12); } catch (e) {}
+
   var unicos = avisos.filter(function (x, i) { return avisos.indexOf(x) === i; });
   document.getElementById("aviso").textContent =
     unicos.length ? "Nota: " + unicos.join(", ") + "; se ha usado la lista completa." : "";
@@ -921,9 +1122,13 @@ function recuperar(d) {
 }
 
 // ---------- Pintar la interfaz ----------
+// Icono dibujado: ico("estrella") → <svg>…</svg>
+function ico(nombre) { return '<svg class="ico"><use href="#i-' + nombre + '"/></svg>'; }
+function nivelDe(p) { return p && p.l ? 3 : p && p.a ? 2 : 1; }
+
 function boton(simbolo, titulo, accion) {
   var b = document.createElement("button");
-  b.textContent = simbolo;
+  b.innerHTML = simbolo;
   b.title = titulo;
   b.onclick = accion;
   return b;
@@ -942,8 +1147,8 @@ function fila(p, conBotones) {
 
 function filaPrompt(p) {
   var botones = [];
-  if (esCompleto(p)) botones.push(boton("👎", "No me gusta esta combinación", function () { descartar(p); }));
-  botones.push(boton(esFavorito(p) ? "★" : "☆",
+  if (esCompleto(p)) botones.push(boton(ico("no"), "No me gusta esta combinación", function () { descartar(p); }));
+  botones.push(boton(ico(esFavorito(p) ? "estrella-llena" : "estrella"),
     esFavorito(p) ? "Quitar de favoritos" : "Añadir a favoritos",
     function () { alternarFavorito(p); }));
   return fila(p, botones);
@@ -967,20 +1172,23 @@ function pintar() {
   if (actual) {
     document.getElementById("prompt").textContent = texto(actual);
     btnFav.disabled = false;
-    btnFav.textContent = esFavorito(actual) ? "★ Favorito" : "☆ Favorito";
+    btnFav.innerHTML = ico(esFavorito(actual) ? "estrella-llena" : "estrella") + "<span>Favorito</span>";
+    document.getElementById("postit").dataset.nivel = nivelDe(actual);
+    document.getElementById("enfoque-postit").dataset.nivel = nivelDe(actual);
   }
   btnNo.disabled = !esCompleto(actual);
   if (actual) document.getElementById("enfoque-prompt").textContent = texto(actual);
-  document.getElementById("enfoque-fav").textContent = actual && esFavorito(actual) ? "★ Favorito" : "☆ Favorito";
+  document.getElementById("enfoque-fav").innerHTML =
+    ico(actual && esFavorito(actual) ? "estrella-llena" : "estrella") + "<span>Favorito</span>";
   document.getElementById("enfoque-no").disabled = !esCompleto(actual);
   btnNo.title = esCompleto(actual)
     ? "No volverá a salir esta combinación de palabra + acción + lugar"
     : "Solo disponible en el nivel palabra + acción + lugar";
 
   llenar("historial", historial.map(filaPrompt));
-  llenar("lista-favoritos", favoritos.map(filaPrompt), "Todavía no tienes favoritos. Marca prompts con ☆.");
+  llenar("lista-favoritos", favoritos.map(filaPrompt), "Todavía no tienes favoritos. Marca prompts con la estrella.");
   llenar("lista-descartados", descartados.map(function (d) {
-    return fila(d, [boton("↩", "Volver a permitir", function () { recuperar(d); })]);
+    return fila(d, [boton(ico("volver"), "Volver a permitir", function () { recuperar(d); })]);
   }), "No has descartado ninguna combinación.");
   document.getElementById("contador-fav").textContent = favoritos.length;
 }
@@ -1093,9 +1301,8 @@ function pintarReloj() {
 
   var btn = document.getElementById("btn-tiempo");
   btn.disabled = esperandoResultado;
-  btn.textContent = enMarcha() ? "⏸ Pausa"
-    : esperandoResultado ? "▶ Empezar"
-    : (enProrroga || ms < totalMs) ? "▶ Continuar" : "▶ Empezar";
+  btn.innerHTML = enMarcha() ? ico("pausa") + "<span>Pausa</span>"
+    : ico("play") + "<span>" + (!esperandoResultado && (enProrroga || ms < totalMs) ? "Continuar" : "Empezar") + "</span>";
 
   var ocupado = enMarcha() || enProrroga || esperandoResultado || ms < totalMs;
   Array.prototype.forEach.call(document.querySelectorAll("#tiempos button"), function (b) {
@@ -1108,7 +1315,28 @@ function pintarReloj() {
   document.getElementById("final").classList.toggle("oculta", !esperandoResultado);
   var btnP = document.getElementById("btn-prorroga");
   btnP.classList.toggle("oculta", prorrogaUsada);
-  btnP.textContent = "＋" + formatoCorto(prorrogaMs()) + " para cerrar (solo una vez)";
+  btnP.innerHTML = ico("mas") + "<span>" + formatoCorto(prorrogaMs()) + " para cerrar (solo una vez)</span>";
+  pintarAnillo(f);
+}
+
+// Anillo del modo dibujo: tres arcos (encaje, desarrollo, remates) separados por un hueco
+var CIRCUNFERENCIA = 2 * Math.PI * 88, HUECO = 16;
+var ARCOS = [[0, 0.2], [0.2, 0.8], [0.8, 1]].map(function (t) {
+  return { inicio: t[0] * CIRCUNFERENCIA + HUECO / 2, largo: (t[1] - t[0]) * CIRCUNFERENCIA - HUECO, t: t };
+});
+ARCOS.forEach(function (a, i) {
+  var pista = document.getElementById("pista-" + (i + 1));
+  pista.style.strokeDasharray = a.largo + " " + CIRCUNFERENCIA;
+  pista.style.strokeDashoffset = -a.inicio;
+});
+function pintarAnillo(f) {
+  ARCOS.forEach(function (a, i) {
+    var lleno = Math.min(1, Math.max(0, (f - a.t[0]) / (a.t[1] - a.t[0])));
+    var c = document.getElementById("anillo-" + (i + 1));
+    c.style.strokeDasharray = (a.largo * lleno) + " " + CIRCUNFERENCIA;
+    c.style.strokeDashoffset = -a.inicio;
+    c.style.opacity = lleno > 0 ? 1 : 0;
+  });
 }
 
 // Evita que la pantalla del móvil se apague mientras dibujas
@@ -1213,6 +1441,28 @@ function reiniciar() {
   if (typeof pintarAjustes === "function") pintarAjustes();
 }
 
+// Confeti y un «¡Bien!» escrito a mano
+function celebrar() {
+  var caja = document.createElement("div");
+  caja.className = "confeti";
+  var colores = ["var(--f1)", "var(--f2)", "var(--f3)", "var(--postit-1)", "var(--postit-2)", "var(--postit-3)"];
+  for (var i = 0; i < 60; i++) {
+    var p = document.createElement("i");
+    p.style.left = Math.random() * 100 + "%";
+    p.style.background = colores[i % colores.length];
+    p.style.animationDelay = Math.random() * 0.4 + "s";
+    p.style.animationDuration = 1.1 + Math.random() * 0.9 + "s";
+    p.style.setProperty("--r", (Math.random() * 900 - 450) + "deg");
+    caja.appendChild(p);
+  }
+  var bien = document.createElement("div");
+  bien.className = "bien";
+  bien.textContent = azar(["¡Bien!", "¡Genial!", "¡Hecho!", "¡Así se hace!"]);
+  document.body.appendChild(caja);
+  document.body.appendChild(bien);
+  setTimeout(function () { caja.remove(); bien.remove(); }, 2300);
+}
+
 function registrar(resultado) {
   sesiones = [{
     f: Date.now(),
@@ -1225,7 +1475,8 @@ function registrar(resultado) {
   guardar(CLAVE_SES, sesiones);
   reiniciar();
   if (enEnfoque) salirEnfoque();
-  document.getElementById("fase").innerHTML = "Guardado en tu progreso 👍";
+  document.getElementById("fase").innerHTML = ico("check") + " Guardado en tu progreso";
+  if (resultado === "acabe") celebrar();
   pintarProgreso();
 }
 
@@ -1237,7 +1488,8 @@ function textoOpcion(nombre) {
   return el ? el.nextSibling.textContent.trim() : "";
 }
 function pintarAjustes() {
-  document.getElementById("res-nivel").textContent = textoOpcion("nivel");
+  document.getElementById("res-nivel").innerHTML =
+    '<i class="punto" data-nivel="' + valor("nivel") + '"></i>' + textoOpcion("nivel");
   var extras = [["con-estilo", "Estilo"], ["con-personalidad", "Personalidad"], ["con-fusion", "Fusión"]]
     .filter(function (x) { return document.getElementById(x[0]).checked; })
     .map(function (x) { return x[1]; });
@@ -1318,7 +1570,7 @@ Array.prototype.forEach.call(document.querySelectorAll("input[name=nivel]"), fun
 //  PROGRESO
 // =====================================================================
 var NOMBRE_NIVEL = { 1: "1 · Palabra", 2: "2 · + acción", 3: "3 · + lugar" };
-var NOMBRE_RES = { acabe: "✅ Lo acabé", casi: "🤏 Me faltó poco", no: "⏳ No llegué" };
+var ICONO_RES = { acabe: "check", casi: "casi", no: "arena" };
 
 function porcentaje(lista, r) {
   if (!lista.length) return "–";
@@ -1333,7 +1585,8 @@ function tablaPor(campo, valores, etiqueta) {
       porcentaje(grupo, "acabe") + "</td><td>" + porcentaje(grupo, "casi") + "</td><td>" +
       porcentaje(grupo, "no") + "</td></tr>";
   }).join("");
-  return "<table><tr><th></th><th>Dibujos</th><th>✅</th><th>🤏</th><th>⏳</th></tr>" + filas + "</table>";
+  return "<table><tr><th></th><th>Dibujos</th><th title='Lo acabé'>" + ico("check") +
+    "</th><th title='Me faltó poco'>" + ico("casi") + "</th><th title='No llegué'>" + ico("arena") + "</th></tr>" + filas + "</table>";
 }
 
 // Busca una combinación nivel + tiempo en la que casi nunca llegas
@@ -1361,6 +1614,17 @@ function consejo() {
   return "";
 }
 
+// Días seguidos dibujando (cuenta hoy, o hasta ayer si hoy aún no has dibujado)
+function racha() {
+  var dias = {};
+  sesiones.forEach(function (s) { dias[new Date(s.f).toDateString()] = true; });
+  var d = new Date();
+  if (!dias[d.toDateString()]) d.setDate(d.getDate() - 1);
+  var n = 0;
+  while (dias[d.toDateString()]) { n++; d.setDate(d.getDate() - 1); }
+  return n;
+}
+
 function escapar(t) {
   return String(t).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; });
 }
@@ -1383,8 +1647,10 @@ function pintarProgreso() {
       "<div class='cifra'><b>" + sesiones.length + "</b><span>dibujos</span></div>" +
       "<div class='cifra'><b>" + (minutosTotales >= 60 ? (minutosTotales / 60).toFixed(1) + " h" : minutosTotales + " min") + "</b><span>dibujando</span></div>" +
       "<div class='cifra'><b>" + porcentaje(sesiones, "acabe") + "</b><span>acabados</span></div>" +
+      "<div class='cifra racha'><b>" + ico("llama") + racha() + "</b><span>" +
+        (racha() === 1 ? "día seguido" : "días seguidos") + "</span></div>" +
     "</div>" +
-    (c ? "<p class='consejo'>💡 " + c + "</p>" : "") +
+    (c ? "<p class='consejo'>" + ico("bombilla") + "<span>" + c + "</span></p>" : "") +
     "<h2>Por nivel</h2>" + tablaPor("n", [1, 2, 3], function (v) { return NOMBRE_NIVEL[v]; }) +
     "<h2>Por tiempo</h2>" + tablaPor("m", tiempos, function (v) { return v + " min"; }) +
     "<h2>Últimos dibujos</h2><ul class='lista'>" +
@@ -1392,7 +1658,7 @@ function pintarProgreso() {
       var fecha = new Date(s.f).toLocaleDateString("es", { day: "numeric", month: "short" });
       return "<li class='sesion'><span>" + escapar(s.p || "(sin prompt)") +
         "<small class='ayuda'>" + fecha + " · " + s.m + " min" + (s.x ? " + prórroga" : "") +
-        "</small></span><span>" + NOMBRE_RES[s.r].split(" ")[0] + "</span></li>";
+        "</small></span><span class='res-ico'>" + ico(ICONO_RES[s.r]) + "</span></li>";
     }).join("") + "</ul>" +
     "<button class='peligro' id='btn-borrar-progreso'>Borrar registro</button>";
 
@@ -1408,7 +1674,7 @@ function pintarProgreso() {
 //  Al abrir la app (o volver a ella) comprueba si hay una versión nueva
 //  publicada y, si la hay, la carga. Cambia VERSION en cada cambio.
 // =====================================================================
-var VERSION = "2026-10-14.2";
+var VERSION = "2026-10-14.3";
 
 function buscarActualizacion() {
   if (location.protocol === "file:" || !window.fetch) return;
@@ -1425,6 +1691,20 @@ document.addEventListener("visibilitychange", function () {
   if (document.visibilityState === "visible") buscarActualizacion();
 });
 document.getElementById("version").textContent = VERSION;
+
+// =====================================================================
+//  TEMA
+// =====================================================================
+var CLAVE_TEMA = "prompts-dibujo:tema";
+var selectorTema = document.getElementById("tema");
+function aplicarTema(t) {
+  document.documentElement.dataset.tema = t;
+  selectorTema.value = t;
+  var oscuro = t === "pizarra" || (t === "auto" && window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches);
+  document.querySelector('meta[name="theme-color"]').content = oscuro ? "#2c3833" : t === "kraft" ? "#c9a372" : "#f3f1ee";
+}
+selectorTema.onchange = function () { guardar(CLAVE_TEMA, selectorTema.value); aplicarTema(selectorTema.value); };
+aplicarTema(document.documentElement.dataset.tema || "auto");
 
 pintar();
 reiniciar();
