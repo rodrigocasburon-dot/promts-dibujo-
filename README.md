@@ -81,12 +81,16 @@ Cada vez que se suban cambios al repositorio, la app del móvil se actualiza sol
   de noche), Papel, Kraft y Pizarra.
 - **Pósit**: el prompt aparece en un pósit escrito a mano, de color según el nivel
   (amarillo: palabra, rosa: + acción, azul: + lugar). Se da la vuelta al generar uno nuevo.
-- **Modo dibujo**: temporizador circular con los colores de las fases.
+- **Modo dibujo**: el reloj se va dibujando a lápiz sobre el papel, con un lápiz que
+  sigue el trazo y los colores de las fases.
+- **Texto a lápiz** en toda la app y título grabado en un lápiz verde con letras doradas.
 - **Celebración** al marcar «Lo acabé» y **racha** de días seguidos en Progreso.
 
 ## Recursos
 
 - `recursos/papel.jpg`: textura de papel arrugado del fondo.
+- `recursos/architects-daughter.woff2`: tipografía Architects Daughter (Kimberly Geswein),
+  licencia SIL Open Font License 1.1, incluida en `recursos/architects-daughter-OFL.txt`.
 - `recursos/caveat-700.woff2`: tipografía Caveat (The Caveat Project Authors), licencia
   SIL Open Font License 1.1, incluida en `recursos/caveat-OFL.txt`.
 

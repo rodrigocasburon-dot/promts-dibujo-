@@ -24,18 +24,26 @@
   src: url("recursos/caveat-700.woff2") format("woff2");
 }
 
+/* Letra de lápiz para toda la interfaz (Architects Daughter, licencia OFL) */
+@font-face {
+  font-family: "Lapiz"; font-weight: 400; font-display: swap;
+  src: url("recursos/architects-daughter.woff2") format("woff2");
+}
+
 /* ---------- Temas ----------
    papel (por defecto), kraft y pizarra. «auto» = papel de día y pizarra de noche. */
 :root {
-  --texto: #2b2620; --suave: #7d7366; --acento: #d9493a; --acento-texto: #fff;
-  --tarjeta: rgba(255, 255, 255, .72); --borde: rgba(60, 50, 40, .22); --trazo: #2b2620;
+  --texto: #3a3a3e; --suave: #75757b; --acento: #d9493a; --acento-texto: #fff;
+  --tarjeta: rgba(255, 255, 255, .72); --borde: rgba(60, 60, 66, .24); --trazo: #3a3a3e;
+  --grano: 0 0 .7px rgba(58, 58, 62, .6);   /* brillo suave del grafito */
   --capa: transparent; --mezcla: normal; --fondo: #f3f1ee;
   --f1: #e9a23b; --f2: #d9493a; --f3: #9b4d96;
   --postit-1: #fff27a; --postit-2: #ffb8cf; --postit-3: #a9dcf7; --postit-texto: #2b2620;
   --a-mano: "Caveat", "Segoe Print", "Bradley Hand", cursive;
+  --lapiz: "Lapiz", "Segoe Print", "Bradley Hand", cursive;
 }
 :root[data-tema="kraft"] {
-  --texto: #2e2216; --suave: #6b5640; --acento: #b23b26;
+  --texto: #35291d; --suave: #6b5640; --acento: #b23b26; --grano: 0 0 .7px rgba(53, 41, 29, .6);
   --tarjeta: rgba(255, 246, 228, .6); --borde: rgba(70, 45, 20, .28); --trazo: #2e2216;
   --capa: #c9a372; --mezcla: multiply; --fondo: #c9a372;
 }
@@ -44,6 +52,7 @@
   --tarjeta: rgba(20, 28, 25, .55); --borde: rgba(230, 240, 230, .18); --trazo: #eef0e8;
   --capa: #2c3833; --mezcla: multiply; --fondo: #2c3833;
   --f1: #f0b04d; --f2: #ff8a73; --f3: #c995c5;
+  --grano: 0 0 1.2px rgba(255, 255, 255, .45);   /* tiza */
 }
 @media (prefers-color-scheme: dark) {
   :root[data-tema="auto"] {
@@ -51,15 +60,18 @@
     --tarjeta: rgba(20, 28, 25, .55); --borde: rgba(230, 240, 230, .18); --trazo: #eef0e8;
     --capa: #2c3833; --mezcla: multiply; --fondo: #2c3833;
     --f1: #f0b04d; --f2: #ff8a73; --f3: #c995c5;
+    --grano: 0 0 1.2px rgba(255, 255, 255, .45);
   }
 }
 
 * { box-sizing: border-box; }
 html { background: var(--fondo); }
 body {
-  margin: 0; font-family: system-ui, -apple-system, sans-serif;
+  margin: 0; font-family: var(--lapiz); font-size: 16.5px;
   color: var(--texto); background: transparent; min-height: 100vh;
+  text-shadow: var(--grano);
 }
+button, select, input { font-family: inherit; text-shadow: inherit; }
 /* Fondo de papel arrugado (fijo, también en iPhone) */
 body::before {
   content: ""; position: fixed; inset: 0; z-index: -1;
@@ -77,38 +89,37 @@ h1 { margin: 0; }
   transform: rotate(-1.2deg);
   filter: drop-shadow(0 4px 3px rgba(0, 0, 0, .28));
 }
-.lapiz .goma {
-  width: 16px; flex-shrink: 0; border-radius: 7px 0 0 7px;
-  background: linear-gradient(#ffb3bf 0%, #f08a9b 45%, #d9697d 75%, #b9566a 100%);
-}
-.lapiz .virola {
-  width: 20px; flex-shrink: 0;
+/* Extremo plano con aros dorados */
+.lapiz .tapa {
+  width: 15px; flex-shrink: 0; border-radius: 3px 0 0 3px;
   background:
-    repeating-linear-gradient(90deg, rgba(0,0,0,.22) 0 1.5px, transparent 1.5px 4px),
-    linear-gradient(#fbfbfb 0%, #cfcfcf 30%, #8f8f8f 55%, #d6d6d6 80%, #9a9a9a 100%);
+    linear-gradient(rgba(255,255,255,.25), rgba(255,255,255,0) 35%, rgba(0,0,0,0) 60%, rgba(0,0,0,.35)),
+    linear-gradient(90deg, #0b2f1c 0 4px, #d9b45a 4px 6px, #0f3d24 6px 9px, #d9b45a 9px 11px, #1d5a39 11px);
 }
-/* Cuerpo hexagonal: las bandas imitan las caras del lápiz */
+/* Cuerpo hexagonal verde oscuro: las bandas imitan las caras del lápiz */
 .lapiz .cuerpo {
   flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 10px;
   padding: 0 6px; overflow: hidden; white-space: nowrap;
-  background: linear-gradient(#ffe682 0%, #ffd84a 28%, #f3bf1a 33%, #f8cb34 62%, #e0a90b 67%, #c08600 100%);
+  background: linear-gradient(#4a9468 0%, #2f774c 26%, #1d5a39 32%, #236441 62%, #164a2e 68%, #0b3320 100%);
 }
+/* Letras grabadas en oro */
 .lapiz .grabado, .lapiz .marca {
-  font: 700 .82rem/1 Georgia, "Times New Roman", serif; text-transform: uppercase; letter-spacing: .1em;
-  /* letras grabadas: oscuras con un brillo justo debajo */
-  color: #5c3f00; text-shadow: 0 1px 0 rgba(255, 255, 255, .55), 0 -1px 0 rgba(0, 0, 0, .18);
+  font: 700 .8rem/1.2 Georgia, "Times New Roman", serif; text-transform: uppercase; letter-spacing: .12em;
+  background: linear-gradient(#fff3c4 10%, #e3c06a 45%, #a67c22 60%, #f2d98f 90%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  text-shadow: none; filter: drop-shadow(0 1px 0 rgba(0, 0, 0, .55));
   overflow: hidden; text-overflow: ellipsis;
 }
-.lapiz .marca { font-size: .7rem; opacity: .75; }
+.lapiz .marca { font-size: .68rem; }
 .lapiz .punta { width: 40px; height: 34px; flex-shrink: 0; display: block; }
 /* Móviles estrechos: se quita «HB» y se aprietan las letras */
 @media (max-width: 370px) {
   .lapiz .marca { display: none; }
   .lapiz .grabado { font-size: .74rem; letter-spacing: .06em; }
-  .lapiz .goma { width: 12px; } .lapiz .virola { width: 16px; } .lapiz .punta { width: 34px; }
+  .lapiz .tapa { width: 12px; } .lapiz .punta { width: 34px; }
   .tab { font-size: .78rem; padding: 9px 2px; }
 }
-h2 { font-family: var(--a-mano); font-size: 1.6rem; margin: 24px 0 8px; }
+h2 { font-size: 1.35rem; margin: 24px 0 8px; font-weight: 400; }
 small { color: var(--suave); }
 
 /* ---------- Iconos dibujados ---------- */
@@ -150,7 +161,7 @@ nav { display: flex; gap: 6px; }
 .ajustes details + details { border-top: 1px dashed var(--borde); }
 .ajustes summary {
   display: flex; justify-content: space-between; align-items: center; gap: 8px;
-  padding: 9px 14px; cursor: pointer; font-weight: 600; list-style: none;
+  padding: 8px 14px; cursor: pointer; list-style: none;
 }
 .ajustes summary::-webkit-details-marker { display: none; }
 .ajustes summary span {
@@ -211,7 +222,7 @@ input[type=radio], input[type=checkbox] { accent-color: var(--acento); }
   border: 1.5px solid var(--trazo); background: var(--tarjeta); color: var(--texto);
 }
 .acciones .principal {
-  background: var(--acento); color: var(--acento-texto); border-color: var(--acento); flex: 2; font-weight: 600;
+  background: var(--acento); color: var(--acento-texto); border-color: var(--acento); flex: 2;
 }
 .acciones button:active { transform: translateY(1px) rotate(-.5deg); }
 #btn-no { flex: 0 0 56px; }
@@ -232,11 +243,10 @@ input[type=radio], input[type=checkbox] { accent-color: var(--acento); }
 .tiempos button:disabled { opacity: .5; cursor: default; }
 .anillo-caja { position: relative; }
 .anillo { display: none; }
-#reloj { font-size: 2.6rem; font-weight: 700; margin: 0; font-variant-numeric: tabular-nums; }
+#reloj { font-size: 2.6rem; margin: 0; line-height: 1.1; }
 #reloj.fin, #reloj.prorroga { color: var(--acento); }
 #reloj.fin { font-family: var(--a-mano); }
-#fase { min-height: 1.4em; margin: 2px 0 8px; font-weight: 600; }
-#fase small { font-weight: 400; }
+#fase { min-height: 1.4em; margin: 2px 0 8px; }
 /* Barra dividida en fases (pantalla principal): encaje 20 %, desarrollo 60 %, remates 20 % */
 .barra { display: flex; gap: 3px; }
 .tramo { height: 9px; background: var(--borde); border-radius: 4px; overflow: hidden; }
@@ -248,7 +258,7 @@ input[type=radio], input[type=checkbox] { accent-color: var(--acento); }
 .nombres-fases span:nth-child(1), .nombres-fases span:nth-child(3) { flex: 20; }
 .nombres-fases span:nth-child(2) { flex: 60; }
 #final { margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--borde); }
-#final p { margin: 0 0 8px; font-family: var(--a-mano); font-size: 1.5rem; }
+#final p { margin: 0 0 8px; font-size: 1.3rem; }
 #btn-prorroga {
   width: 100%; margin-bottom: 12px; padding: 13px; font-size: 1.02rem; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
@@ -285,11 +295,13 @@ input[type=radio], input[type=checkbox] { accent-color: var(--acento); }
   position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%);
   font-size: min(13vw, 3.4rem);
 }
+#enfoque .anillo { overflow: visible; }
 #enfoque #reloj.fin { font-size: min(14vw, 3.6rem); }
-.anillo circle { fill: none; stroke-width: 12; stroke-linecap: round; }
-.anillo .pista { stroke: var(--borde); }
+.anillo circle { fill: none; stroke-width: 7; stroke-linecap: round; }
+.anillo .pista { stroke: var(--borde); stroke-width: 2; }
+#lapiz-reloj { filter: drop-shadow(1px 2px 1.5px rgba(0,0,0,.3)); }
 .anillo .relleno-1 { stroke: var(--f1); } .anillo .relleno-2 { stroke: var(--f2); } .anillo .relleno-3 { stroke: var(--f3); }
-#enfoque #fase { margin-top: 10px; }
+#enfoque #fase { margin-top: 22px; }
 #enfoque > .enfoque-caja > .acciones { margin-top: auto; padding-top: 20px; }
 body.dibujando { overflow: hidden; }
 
@@ -335,7 +347,7 @@ body.dibujando { overflow: hidden; }
   background: var(--tarjeta); border: 1.5px solid var(--borde); border-radius: 12px 8px 14px 9px;
   padding: 10px 8px; text-align: center;
 }
-.cifra b { display: block; font-family: var(--a-mano); font-size: 2.2rem; line-height: 1; }
+.cifra b { display: block; font-size: 1.9rem; line-height: 1.1; font-weight: 400; }
 .cifra span { font-size: .8rem; color: var(--suave); }
 .cifra.racha b { color: var(--acento); display: flex; align-items: center; justify-content: center; gap: 4px; }
 table { width: 100%; border-collapse: collapse; font-size: .9rem; }
@@ -359,6 +371,14 @@ th { color: var(--suave); font-weight: 600; }
   <!-- Iconos dibujados a mano (trazo con un leve temblor de lápiz) -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
     <defs>
+      <!-- Trazo de grafito: tembloroso y con grano de papel -->
+      <filter id="grafito" x="-10%" y="-10%" width="120%" height="120%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="2" seed="7" result="ruido"/>
+        <feDisplacementMap in="SourceGraphic" in2="ruido" scale="3.5" result="tembloroso"/>
+        <feTurbulence type="fractalNoise" baseFrequency="1.8" numOctaves="1" seed="3" result="grano"/>
+        <feColorMatrix in="grano" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  2.6 0 0 0 -0.55" result="granoAlfa"/>
+        <feComposite in="tembloroso" in2="granoAlfa" operator="in"/>
+      </filter>
       <filter id="lapiz" x="-20%" y="-20%" width="140%" height="140%">
         <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" seed="4"/>
         <feDisplacementMap in="SourceGraphic" scale="1.1"/>
@@ -386,8 +406,7 @@ th { color: var(--suave); font-weight: 600; }
     <div class="cabecera">
       <!-- Título grabado en un lápiz horizontal -->
       <h1 class="lapiz">
-        <span class="goma"></span>
-        <span class="virola"></span>
+        <span class="tapa"></span>
         <span class="cuerpo"><span class="grabado">Prompts de Dibujo</span><span class="marca">HB</span></span>
         <svg class="punta" viewBox="0 0 40 34" preserveAspectRatio="none" aria-hidden="true">
           <defs>
@@ -490,12 +509,27 @@ th { color: var(--suave); font-weight: 600; }
       <div class="temporizador" id="temporizador">
         <div class="anillo-caja">
           <svg class="anillo" viewBox="0 0 200 200" aria-hidden="true">
-            <circle class="pista" id="pista-1" cx="100" cy="100" r="88"/>
-            <circle class="pista" id="pista-2" cx="100" cy="100" r="88"/>
-            <circle class="pista" id="pista-3" cx="100" cy="100" r="88"/>
-            <circle class="relleno-1" id="anillo-1" cx="100" cy="100" r="88"/>
-            <circle class="relleno-2" id="anillo-2" cx="100" cy="100" r="88"/>
-            <circle class="relleno-3" id="anillo-3" cx="100" cy="100" r="88"/>
+            <g filter="url(#grafito)">
+              <!-- guía muy suave, como un boceto previo -->
+              <circle class="pista" id="pista-1" cx="100" cy="100" r="88"/>
+              <circle class="pista" id="pista-2" cx="100" cy="100" r="88"/>
+              <circle class="pista" id="pista-3" cx="100" cy="100" r="88"/>
+              <!-- trazo de lápiz de color que se va dibujando -->
+              <circle class="relleno-1" id="anillo-1" cx="100" cy="100" r="88"/>
+              <circle class="relleno-2" id="anillo-2" cx="100" cy="100" r="88"/>
+              <circle class="relleno-3" id="anillo-3" cx="100" cy="100" r="88"/>
+            </g>
+            <!-- lápiz que va dibujando el reloj -->
+            <g id="lapiz-reloj" class="oculta">
+              <g transform="rotate(-52)">
+                <path d="M0 0 L10 -3.6 L10 3.6 Z" fill="#e8c08a"/>
+                <path d="M0 0 L4 -1.4 L4 1.4 Z" fill="#333"/>
+                <rect x="10" y="-3.6" width="20" height="7.2" fill="#1d5a39"/>
+                <rect x="10" y="-3.6" width="20" height="2.4" fill="#2f774c"/>
+                <rect x="30" y="-3.6" width="2" height="7.2" fill="#d9b45a"/>
+                <rect x="32" y="-3.6" width="3" height="7.2" fill="#0f3d24"/>
+              </g>
+            </g>
           </svg>
           <div id="reloj">05:00</div>
         </div>
@@ -1389,13 +1423,21 @@ ARCOS.forEach(function (a, i) {
   pista.style.strokeDashoffset = -a.inicio;
 });
 function pintarAnillo(f) {
+  var punta = ARCOS[0].inicio;   // hasta dónde ha llegado el trazo
   ARCOS.forEach(function (a, i) {
     var lleno = Math.min(1, Math.max(0, (f - a.t[0]) / (a.t[1] - a.t[0])));
     var c = document.getElementById("anillo-" + (i + 1));
     c.style.strokeDasharray = (a.largo * lleno) + " " + CIRCUNFERENCIA;
     c.style.strokeDashoffset = -a.inicio;
     c.style.opacity = lleno > 0 ? 1 : 0;
+    if (lleno > 0) punta = a.inicio + a.largo * lleno;
   });
+  // El lápiz se coloca en la punta del trazo, mientras corre el tiempo
+  var angulo = punta / 88;
+  var lapiz = document.getElementById("lapiz-reloj");
+  lapiz.setAttribute("transform", "translate(" + (100 + 88 * Math.cos(angulo)) + " " +
+    (100 + 88 * Math.sin(angulo)) + ") rotate(" + (angulo * 180 / Math.PI) + ")");
+  lapiz.classList.toggle("oculta", !enMarcha());
 }
 
 // Evita que la pantalla del móvil se apague mientras dibujas
@@ -1733,7 +1775,7 @@ function pintarProgreso() {
 //  Al abrir la app (o volver a ella) comprueba si hay una versión nueva
 //  publicada y, si la hay, la carga. Cambia VERSION en cada cambio.
 // =====================================================================
-var VERSION = "2026-10-14.4";
+var VERSION = "2026-10-14.5";
 
 function buscarActualizacion() {
   if (location.protocol === "file:" || !window.fetch) return;
