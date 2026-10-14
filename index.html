@@ -237,7 +237,7 @@ th { color: var(--suave); font-weight: 600; }
 //       un animal, personaje o criatura: es la que presta sus rasgos a la primera.
 //   m / f = forma masculina / femenina de un personaje («gato brujo», «rana bruja»).
 var SUSTANTIVOS = [
-  // Animales (164)
+  // Animales (166)
   { t: "gato", g: "m", k: "a" }, { t: "perro", g: "m", k: "a" }, { t: "mono", g: "m", k: "a" },
   { t: "pulpo", g: "m", k: "a" }, { t: "zorro", g: "m", k: "a" }, { t: "búho", g: "m", k: "a" },
   { t: "rana", g: "f", k: "a" }, { t: "ballena", g: "f", k: "a" }, { t: "oso", g: "m", k: "a" },
@@ -292,8 +292,9 @@ var SUSTANTIVOS = [
   { t: "escorpión", g: "m", k: "a" }, { t: "tarántula", g: "f", k: "a" }, { t: "avispa", g: "f", k: "a" },
   { t: "abejorro", g: "m", k: "a" }, { t: "babosa", g: "f", k: "a" }, { t: "mantis", g: "f", k: "a" },
   { t: "mamut", g: "m", k: "a" }, { t: "pterodáctilo", g: "m", k: "a" }, { t: "caballo", g: "m", k: "a" },
-  { t: "caballito de mar", g: "m", k: "a" }, { t: "estrella de mar", g: "f", k: "a" },
-  // Personajes (93)
+  { t: "caballito de mar", g: "m", k: "a" }, { t: "estrella de mar", g: "f", k: "a" }, { t: "puercoespín", g: "m", k: "a" },
+  { t: "dodo", g: "m", k: "a" },
+  // Personajes (94)
   { t: "bruja", g: "f", k: "p", m: "brujo" }, { t: "astronauta", g: "m", k: "p" },
   { t: "caballero", g: "m", k: "p" }, { t: "sirena", g: "f", k: "p", m: "tritón" },
   { t: "mago", g: "m", k: "p", f: "maga" }, { t: "samurái", g: "m", k: "p" },
@@ -340,11 +341,11 @@ var SUSTANTIVOS = [
   { t: "villano", g: "m", k: "p", f: "villana" }, { t: "elfo", g: "m", k: "p", f: "elfa" },
   { t: "enano", g: "m", k: "p", f: "enana" }, { t: "cartero", g: "m", k: "p" },
   { t: "mayordomo", g: "m", k: "p" }, { t: "bibliotecario", g: "m", k: "p", f: "bibliotecaria" },
-  { t: "camarero", g: "m", k: "p", f: "camarera" },
+  { t: "camarero", g: "m", k: "p", f: "camarera" }, { t: "superhéroe", g: "m", k: "p", f: "superheroína" },
   // Personas (solo como primera palabra de una fusión) (6)
   { t: "abuela", g: "f", k: "h" }, { t: "anciano", g: "m", k: "h" }, { t: "bebé", g: "m", k: "h" },
   { t: "niño", g: "m", k: "h" }, { t: "niña", g: "f", k: "h" }, { t: "abuelo", g: "m", k: "h" },
-  // Criaturas (53)
+  // Criaturas (58)
   { t: "calavera", g: "f", k: "c" }, { t: "dragón", g: "m", k: "c" }, { t: "robot", g: "m", k: "c" },
   { t: "fantasma", g: "m", k: "c" }, { t: "vampiro", g: "m", k: "c" }, { t: "esqueleto", g: "m", k: "c" },
   { t: "golem", g: "m", k: "c" }, { t: "unicornio", g: "m", k: "c" }, { t: "minotauro", g: "m", k: "c" },
@@ -362,8 +363,10 @@ var SUSTANTIVOS = [
   { t: "monstruo", g: "m", k: "c" }, { t: "bestia", g: "f", k: "c" }, { t: "ninfa", g: "f", k: "c" },
   { t: "dríade", g: "f", k: "c" }, { t: "espantapájaros", g: "m", k: "c" }, { t: "muñeco de nieve", g: "m", k: "c" },
   { t: "marioneta", g: "f", k: "c" }, { t: "titán", g: "m", k: "c" }, { t: "coloso", g: "m", k: "c" },
-  { t: "licántropo", g: "m", k: "c" }, { t: "hombre lobo", g: "m", k: "c" },
-  // Objetos, plantas, comida y naturaleza (168)
+  { t: "licántropo", g: "m", k: "c" }, { t: "hombre lobo", g: "m", k: "c" }, { t: "kraken", g: "m", k: "c" },
+  { t: "pegaso", g: "m", k: "c" }, { t: "mantícora", g: "f", k: "c" }, { t: "gorgona", g: "f", k: "c" },
+  { t: "cíborg", g: "m", k: "c" },
+  // Objetos, plantas, comida y naturaleza (178)
   { t: "seta", g: "f", k: "o" }, { t: "tetera", g: "f", k: "o" }, { t: "planta carnívora", g: "f", k: "o" },
   { t: "faro", g: "m", k: "o" }, { t: "cactus", g: "m", k: "o" }, { t: "bicicleta", g: "f", k: "o" },
   { t: "lámpara", g: "f", k: "o" }, { t: "zapato", g: "m", k: "o" }, { t: "casa", g: "f", k: "o" },
@@ -420,6 +423,10 @@ var SUSTANTIVOS = [
   { t: "trofeo", g: "m", k: "o" }, { t: "máscara", g: "f", k: "o" }, { t: "ataúd", g: "m", k: "o" },
   { t: "lápida", g: "f", k: "o" }, { t: "reloj de arena", g: "m", k: "o" }, { t: "globo aerostático", g: "m", k: "o" },
   { t: "máquina de escribir", g: "f", k: "o" }, { t: "tienda de campaña", g: "f", k: "o" }, { t: "caja de música", g: "f", k: "o" },
+  { t: "lavadora", g: "f", k: "o" }, { t: "tostadora", g: "f", k: "o" }, { t: "aspiradora", g: "f", k: "o" },
+  { t: "tijera", g: "f", k: "o" }, { t: "brócoli", g: "m", k: "o" }, { t: "dónut", g: "m", k: "o" },
+  { t: "sushi", g: "m", k: "o" }, { t: "piruleta", g: "f", k: "o" }, { t: "arcoíris", g: "m", k: "o" },
+  { t: "osito de peluche", g: "m", k: "o" },
 ];
 
 var ACCIONES = [
@@ -474,7 +481,7 @@ var ACCIONES = [
   "bailando con su pareja", "llevando una bandeja llena", "cargando con una mochila enorme",
   "tejiendo una bufanda", "arropándose con una manta", "encendiendo una hoguera",
   "apagando un incendio", "persiguiendo a un ladrón", "atrapando una estrella",
-  "domando a una fiera",
+  "domando a una fiera", "haciendo un pícnic", "vendiendo limonada",
 ];
 
 var LUGARES = [
@@ -530,7 +537,7 @@ var LUGARES = [
   "en una peluquería", "en una barbería", "en un pueblo abandonado",
   "en un faro", "en un mercadillo", "en un tejado bajo la lluvia",
   "en un callejón oscuro", "en un campo de batalla", "en un salón de baile",
-  "en una sala de espera", "en un baño público",
+  "en una sala de espera", "en un baño público", "en una bañera",
 ];
 
 // Estilos / objetivos: [masculino, femenino]. Si es invariable, repite la palabra.
@@ -577,7 +584,9 @@ var ESTILOS = [
   ["regordete", "regordeta"], ["flacucho", "flacucha"], ["cabezón", "cabezona"],
   ["derretido", "derretida"], ["agrietado", "agrietada"], ["encantado", "encantada"],
   ["maldito", "maldita"], ["sagrado", "sagrada"], ["legendario", "legendaria"],
-  ["salvaje", "salvaje"],
+  ["salvaje", "salvaje"], ["art déco", "art déco"], ["de gominola", "de gominola"],
+  ["de origami", "de origami"], ["bioluminiscente", "bioluminiscente"], ["robótico", "robótica"],
+  ["postapocalíptico", "postapocalíptica"], ["inflable", "inflable"],
 ];
 
 // Personalidades: el objeto o personaje tiene un carácter que hay que transmitir.
@@ -621,6 +630,7 @@ var PERSONALIDADES = [
   ["carismático", "carismática"], ["sarcástico", "sarcástica"], ["ambicioso", "ambiciosa"],
   ["competitivo", "competitiva"], ["fanfarrón", "fanfarrona"], ["sabelotodo", "sabelotodo"],
   ["pijo", "pija"], ["empollón", "empollona"], ["hippie", "hippie"],
+  ["friki", "friki"], ["rockero", "rockera"],
 ];
 
 // =====================================================================
