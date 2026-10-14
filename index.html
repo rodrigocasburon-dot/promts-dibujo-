@@ -10,7 +10,7 @@
   </script>
   <link rel="preload" href="recursos/caveat-700.woff2" as="font" type="font/woff2" crossorigin>
   <meta http-equiv="Cache-Control" content="no-cache">
-  <meta name="theme-color" content="#e2584a">
+  <meta name="theme-color" content="#F2F0EF">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Dibujapp">
@@ -33,33 +33,37 @@
 /* ---------- Temas ----------
    papel (por defecto), kraft y pizarra. «auto» = papel de día y pizarra de noche. */
 :root {
-  --texto: #3a3a3e; --suave: #75757b; --acento: #d9493a; --acento-texto: #fff;
-  --tarjeta: rgba(255, 255, 255, .72); --borde: rgba(60, 60, 66, .24); --trazo: #3a3a3e;
-  --grano: 0 0 .7px rgba(58, 58, 62, .6);   /* brillo suave del grafito */
-  --capa: transparent; --mezcla: normal; --fondo: #f3f1ee;
-  --f1: #e9a23b; --f2: #d9493a; --f3: #9b4d96;
-  --postit-1: #fff27a; --postit-2: #ffb8cf; --postit-3: #a9dcf7; --postit-texto: #2b2620;
+  /* Paleta de la app */
+  --verde: #228B22; --oliva: #808000; --oliva-oscuro: #636B2F; --crema: #F2F0EF;
+
+  --texto: #34382a; --suave: #6f7360; --acento: var(--verde); --acento-texto: var(--crema);
+  --tarjeta: rgba(242, 240, 239, .78); --borde: rgba(99, 107, 47, .3); --trazo: #34382a;
+  --grano: 0 0 .7px rgba(52, 56, 42, .6);   /* brillo suave del grafito */
+  --capa: var(--crema); --mezcla: multiply; --fondo: var(--crema);
+  --f1: var(--oliva); --f2: var(--verde); --f3: var(--oliva-oscuro);
+  /* pósits del prompt: tonos claros de la paleta, según el nivel */
+  --postit-1: #e6e4a6; --postit-2: #bfe2b4; --postit-3: #d6dab8; --postit-texto: #2a2e1c;
   --a-mano: "Caveat", "Segoe Print", "Bradley Hand", cursive;
   --lapiz: "Lapiz", "Segoe Print", "Bradley Hand", cursive;
 }
 :root[data-tema="kraft"] {
-  --texto: #35291d; --suave: #6b5640; --acento: #b23b26; --grano: 0 0 .7px rgba(53, 41, 29, .6);
+  --texto: #35291d; --suave: #6b5640; --grano: 0 0 .7px rgba(53, 41, 29, .6);
   --tarjeta: rgba(255, 246, 228, .6); --borde: rgba(70, 45, 20, .28); --trazo: #2e2216;
   --capa: #c9a372; --mezcla: multiply; --fondo: #c9a372;
 }
 :root[data-tema="pizarra"] {
-  --texto: #eef0e8; --suave: #a9b3a8; --acento: #ff8a73; --acento-texto: #1d2420;
-  --tarjeta: rgba(20, 28, 25, .55); --borde: rgba(230, 240, 230, .18); --trazo: #eef0e8;
-  --capa: #2c3833; --mezcla: multiply; --fondo: #2c3833;
-  --f1: #f0b04d; --f2: #ff8a73; --f3: #c995c5;
+  --texto: #F2F0EF; --suave: #b9bca4; --acento: #5cc25c; --acento-texto: #1c2410;
+  --tarjeta: rgba(28, 32, 16, .55); --borde: rgba(242, 240, 239, .2); --trazo: #F2F0EF;
+  --capa: #3a4020; --mezcla: multiply; --fondo: #3a4020;
+  --f1: #b5b53a; --f2: #5cc25c; --f3: #a3ad5e;
   --grano: 0 0 1.2px rgba(255, 255, 255, .45);   /* tiza */
 }
 @media (prefers-color-scheme: dark) {
   :root[data-tema="auto"] {
-    --texto: #eef0e8; --suave: #a9b3a8; --acento: #ff8a73; --acento-texto: #1d2420;
-    --tarjeta: rgba(20, 28, 25, .55); --borde: rgba(230, 240, 230, .18); --trazo: #eef0e8;
-    --capa: #2c3833; --mezcla: multiply; --fondo: #2c3833;
-    --f1: #f0b04d; --f2: #ff8a73; --f3: #c995c5;
+    --texto: #F2F0EF; --suave: #b9bca4; --acento: #5cc25c; --acento-texto: #1c2410;
+    --tarjeta: rgba(28, 32, 16, .55); --borde: rgba(242, 240, 239, .2); --trazo: #F2F0EF;
+    --capa: #3a4020; --mezcla: multiply; --fondo: #3a4020;
+    --f1: #b5b53a; --f2: #5cc25c; --f3: #a3ad5e;
     --grano: 0 0 1.2px rgba(255, 255, 255, .45);
   }
 }
@@ -94,13 +98,13 @@ h1 { margin: 0; }
   width: 15px; flex-shrink: 0; border-radius: 3px 0 0 3px;
   background:
     linear-gradient(rgba(255,255,255,.25), rgba(255,255,255,0) 35%, rgba(0,0,0,0) 60%, rgba(0,0,0,.35)),
-    linear-gradient(90deg, #0b2f1c 0 4px, #d9b45a 4px 6px, #0f3d24 6px 9px, #d9b45a 9px 11px, #1d5a39 11px);
+    linear-gradient(90deg, #0f4d0f 0 4px, #d9b45a 4px 6px, #145c14 6px 9px, #d9b45a 9px 11px, #228B22 11px);
 }
 /* Cuerpo hexagonal verde oscuro: las bandas imitan las caras del lápiz */
 .lapiz .cuerpo {
   flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 10px;
   padding: 0 6px; overflow: hidden; white-space: nowrap;
-  background: linear-gradient(#4a9468 0%, #2f774c 26%, #1d5a39 32%, #236441 62%, #164a2e 68%, #0b3320 100%);
+  background: linear-gradient(#4fae4f 0%, #2f9a2f 26%, #228B22 32%, #1f7f1f 62%, #186a18 68%, #0f4d0f 100%);
 }
 /* Letras grabadas en oro */
 .lapiz .grabado, .lapiz .marca {
@@ -204,6 +208,9 @@ input[type=radio], input[type=checkbox] { accent-color: var(--acento); }
 .texto-mano { font-family: var(--a-mano); font-weight: 700; line-height: 1.05; margin: 0; }
 .texto-mano::first-letter { text-transform: uppercase; }
 #prompt { font-size: 2.3rem; }
+/* Prompts largos: letra algo más pequeña para que todo quepa en la pantalla */
+#prompt[data-largo="1"] { font-size: 1.95rem; }
+#prompt[data-largo="2"] { font-size: 1.65rem; }
 #aviso { color: rgba(43,38,32,.65); font-size: .85rem; margin: 6px 0 0; }
 /* Animación al generar: el pósit se da la vuelta */
 @keyframes voltear {
@@ -388,28 +395,32 @@ th { color: var(--suave); font-weight: 600; }
   box-shadow: 0 1px 1px rgba(0,0,0,.1), 0 3px 5px -3px rgba(0,0,0,.45);
 }
 /* Colores de cada papelito */
-#btn-generar, #btn-tiempo, .resultados [data-r="acabe"] { --papel: #a7dc8f; }
-#btn-fav, #enfoque-fav, .resultados [data-r="casi"] { --papel: var(--postit-1); --giro-boton: 1.2deg; }
-#btn-no, #enfoque-no, .resultados [data-r="no"] { --papel: #ffc58f; --giro-boton: -1.6deg; }
-#btn-reiniciar { --papel: var(--postit-3); --giro-boton: 1deg; }
-#btn-salir { --papel: #f4f1ea; --giro-boton: 2deg; }
-#btn-prorroga { --papel: #d9bff2; --giro-boton: -.6deg; }
-.acciones .principal { color: var(--postit-texto); background-image: linear-gradient(rgba(0,0,0,.06), rgba(0,0,0,0) 40%) !important; text-shadow: none; }
-.tema { --papel: var(--postit-1); --giro-boton: 3deg; }
+/* Papeles oscuros (verde y olivas) llevan la letra en crema */
+.papel-oscuro, #btn-generar, #btn-tiempo, #btn-fav, #enfoque-fav, #btn-no, #enfoque-no,
+.resultados button, .tiempos button.activa, .tab[data-vista="generar"], .tab[data-vista="historial"],
+.tab[data-vista="favoritos"] { --tinta: var(--crema); color: var(--crema) !important; }
+#btn-generar, #btn-tiempo, .resultados [data-r="acabe"] { --papel: var(--verde); }
+#btn-fav, #enfoque-fav, .resultados [data-r="casi"] { --papel: var(--oliva); --giro-boton: 1.2deg; }
+#btn-no, #enfoque-no, .resultados [data-r="no"] { --papel: var(--oliva-oscuro); --giro-boton: -1.6deg; }
+#btn-reiniciar { --papel: var(--crema); --giro-boton: 1deg; }
+#btn-salir { --papel: var(--crema); --giro-boton: 2deg; }
+#btn-prorroga { --papel: var(--crema); --tinta: var(--verde); color: var(--verde); --giro-boton: -.6deg; }
+.acciones .principal { background-image: linear-gradient(rgba(0,0,0,.06), rgba(0,0,0,0) 40%) !important; text-shadow: none; }
+.tema { --papel: var(--crema); --giro-boton: 3deg; }
 .tema .ico { color: var(--postit-texto); }
 /* Botones de tiempo: notitas pequeñas */
-.tiempos button { --papel: #fdf3b5; --giro-boton: -1.5deg; padding: 7px 11px; }
+.tiempos button { --papel: var(--crema); --giro-boton: -1.5deg; padding: 7px 11px; }
 .tiempos button:nth-child(even) { --giro-boton: 1.5deg; }
-.tiempos button.activa { --papel: #a7dc8f; }
+.tiempos button.activa { --papel: var(--verde); }
 /* Pestañas: banderitas adhesivas de colores */
 nav { gap: 5px; }
 .tab { filter: saturate(.75) brightness(.93); transform: translateY(3px) rotate(var(--giro-boton, -1deg)); box-shadow: 0 4px 6px -5px rgba(0,0,0,.45); }
-.tab[data-vista="generar"] { --papel: #a7dc8f; --giro-boton: -1.5deg; }
-.tab[data-vista="historial"] { --papel: var(--postit-3); --giro-boton: 1deg; }
-.tab[data-vista="favoritos"] { --papel: var(--postit-1); --giro-boton: -.8deg; }
-.tab[data-vista="progreso"] { --papel: var(--postit-2); --giro-boton: 1.4deg; }
+.tab[data-vista="generar"] { --papel: var(--verde); --giro-boton: -1.5deg; }
+.tab[data-vista="historial"] { --papel: var(--oliva); --giro-boton: 1deg; }
+.tab[data-vista="favoritos"] { --papel: var(--oliva-oscuro); --giro-boton: -.8deg; }
+.tab[data-vista="progreso"] { --papel: var(--crema); --giro-boton: 1.4deg; }
 .tab.activa {
-  filter: none; color: var(--postit-texto);
+  filter: none;
   transform: translateY(0) rotate(var(--giro-boton)) scale(1.04);
   box-shadow: 0 1px 1px rgba(0,0,0,.1), 0 8px 12px -6px rgba(0,0,0,.5);
 }
@@ -431,7 +442,7 @@ th, td, .cifra b, .cifra span, .version, .nota-auto, #final p, .consejo span {
   text-shadow: none;
 }
 #reloj.fin, #reloj.prorroga { --tinta: var(--acento); }
-.cifra.racha b { --tinta: var(--acento); }
+.cifra.racha b { --tinta: var(--oliva); color: var(--oliva); }
 .consejo { --tinta: var(--postit-texto); }
   </style>
 </head>
@@ -592,10 +603,10 @@ th, td, .cifra b, .cifra span, .version, .nota-auto, #final p, .consejo span {
               <g transform="rotate(-52)">
                 <path d="M0 0 L10 -3.6 L10 3.6 Z" fill="#e8c08a"/>
                 <path d="M0 0 L4 -1.4 L4 1.4 Z" fill="#333"/>
-                <rect x="10" y="-3.6" width="20" height="7.2" fill="#1d5a39"/>
-                <rect x="10" y="-3.6" width="20" height="2.4" fill="#2f774c"/>
+                <rect x="10" y="-3.6" width="20" height="7.2" fill="#228B22"/>
+                <rect x="10" y="-3.6" width="20" height="2.4" fill="#3aa63a"/>
                 <rect x="30" y="-3.6" width="2" height="7.2" fill="#d9b45a"/>
-                <rect x="32" y="-3.6" width="3" height="7.2" fill="#0f3d24"/>
+                <rect x="32" y="-3.6" width="3" height="7.2" fill="#0f4d0f"/>
               </g>
             </g>
           </svg>
@@ -1331,7 +1342,10 @@ function pintar() {
   var btnFav = document.getElementById("btn-fav");
   var btnNo = document.getElementById("btn-no");
   if (actual) {
-    document.getElementById("prompt").textContent = texto(actual);
+    var elPrompt = document.getElementById("prompt");
+    elPrompt.textContent = texto(actual);
+    var largo = elPrompt.textContent.length;
+    elPrompt.dataset.largo = largo > 48 ? 2 : largo > 30 ? 1 : 0;
     btnFav.disabled = false;
     btnFav.innerHTML = ico(esFavorito(actual) ? "estrella-llena" : "estrella") + "<span>Favorito</span>";
     document.getElementById("postit").dataset.nivel = nivelDe(actual);
@@ -1843,7 +1857,7 @@ function pintarProgreso() {
 //  Al abrir la app (o volver a ella) comprueba si hay una versión nueva
 //  publicada y, si la hay, la carga. Cambia VERSION en cada cambio.
 // =====================================================================
-var VERSION = "2026-10-14.8";
+var VERSION = "2026-10-14.9";
 
 function buscarActualizacion() {
   if (location.protocol === "file:" || !window.fetch) return;
@@ -1870,7 +1884,7 @@ function aplicarTema(t) {
   document.documentElement.dataset.tema = t;
   selectorTema.value = t;
   var oscuro = t === "pizarra" || (t === "auto" && window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches);
-  document.querySelector('meta[name="theme-color"]').content = oscuro ? "#2c3833" : t === "kraft" ? "#c9a372" : "#f3f1ee";
+  document.querySelector('meta[name="theme-color"]').content = oscuro ? "#3a4020" : t === "kraft" ? "#c9a372" : "#F2F0EF";
 }
 selectorTema.onchange = function () { guardar(CLAVE_TEMA, selectorTema.value); aplicarTema(selectorTema.value); };
 aplicarTema(document.documentElement.dataset.tema || "auto");

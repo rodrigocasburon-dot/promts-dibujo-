@@ -90,6 +90,10 @@ Cada vez que se suban cambios al repositorio, la app del móvil se actualiza sol
   parecen tiza.
 - **Celebración** al marcar «Lo acabé» y **racha** de días seguidos en Progreso.
 
+**Paleta de colores**: verde `#228B22`, oliva `#808000`, oliva oscuro `#636B2F` y crema
+`#F2F0EF` (definidos al principio del estilo como `--verde`, `--oliva`, `--oliva-oscuro`
+y `--crema`).
+
 ## Recursos
 
 - `recursos/papel.jpg`: textura de papel arrugado del fondo.

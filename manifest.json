@@ -3,8 +3,8 @@
   "short_name": "Dibujapp",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#faf7f2",
-  "theme_color": "#e2584a",
+  "background_color": "#F2F0EF",
+  "theme_color": "#228B22",
   "icons": [
     { "src": "icono-192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "icono-512.png", "sizes": "512x512", "type": "image/png" }
