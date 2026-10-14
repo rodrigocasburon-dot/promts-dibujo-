@@ -7,6 +7,9 @@ Generador de ideas para dibujar, con niveles de dificultad y favoritos.
 Abre `index.html` en tu navegador (doble clic). No hace falta instalar nada: toda la app
 está en ese único archivo.
 
+Los ajustes (nivel, extras, protagonista, generador y tiempo) son desplegables: cerrados
+muestran lo que tienes elegido, para que todo quepa en una pantalla del móvil.
+
 - **Nivel del prompt**
   1. *Palabra*: «calavera» (el más libre)
   2. *Palabra + acción*: «calavera bailando»

@@ -28,8 +28,9 @@ body {
   margin: 0; font-family: system-ui, sans-serif;
   background: var(--fondo); color: var(--texto);
 }
-header, main { max-width: 640px; margin: 0 auto; padding: 16px; }
-h1 { margin: 0 0 12px; font-size: 1.6rem; }
+header, main { max-width: 640px; margin: 0 auto; padding: 12px 16px; }
+main { padding-top: 0; }
+h1 { margin: 0 0 10px; font-size: 1.35rem; }
 h2 { font-size: 1.1rem; margin-top: 28px; }
 nav { display: flex; gap: 8px; }
 .tab {
@@ -39,13 +40,34 @@ nav { display: flex; gap: 8px; }
 .tab.activa { background: var(--acento); color: #fff; border-color: var(--acento); }
 .tab span { font-size: .8rem; opacity: .8; }
 fieldset { border: 1px solid var(--borde); border-radius: 8px; margin: 0 0 12px; padding: 8px 12px; }
+/* Ajustes desplegables */
+.ajustes {
+  background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 12px;
+  margin-bottom: 12px; overflow: hidden;
+}
+.ajustes details + details { border-top: 1px solid var(--borde); }
+.ajustes summary {
+  display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  padding: 9px 14px; cursor: pointer; font-weight: 600; list-style: none;
+}
+.ajustes summary::-webkit-details-marker { display: none; }
+.ajustes summary span {
+  margin-left: auto; font-weight: 400; color: var(--suave); text-align: right;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.ajustes summary::after { content: "▾"; color: var(--suave); transition: transform .2s; }
+.ajustes details[open] summary::after { transform: rotate(180deg); }
+.ajustes details[open] summary span { display: none; }
+.opciones { padding: 0 14px 10px; }
+.opciones label { display: block; padding: 7px 0; cursor: pointer; }
+.nota-auto { display: block; margin-top: 8px; }
 legend { font-weight: 600; padding: 0 4px; }
 fieldset label, .interruptor { display: block; padding: 6px 0; cursor: pointer; }
 .interruptor { margin-bottom: 12px; }
 small { color: var(--suave); }
 .tarjeta {
   background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 12px;
-  padding: 32px 16px; text-align: center; min-height: 140px;
+  padding: 20px 16px; text-align: center; min-height: 100px;
 }
 #prompt { font-size: 1.8rem; font-weight: 700; margin: 0; }
 #prompt::first-letter { text-transform: uppercase; }
@@ -85,12 +107,12 @@ small { color: var(--suave); }
 #enfoque-prompt::first-letter { text-transform: uppercase; }
 #enfoque .temporizador { background: none; border: none; padding: 0; }
 #enfoque .temporizador h2, #enfoque .tiempos { display: none; }
-#enfoque #reloj { font-size: 5rem; }
+#enfoque #reloj { font-size: 5rem; margin-top: 12px; }
 #enfoque > .enfoque-caja > .acciones { margin-top: auto; padding-top: 24px; }
 body.dibujando { overflow: hidden; }
 .temporizador {
-  margin-top: 20px; background: var(--tarjeta); border: 1px solid var(--borde);
-  border-radius: 12px; padding: 16px; text-align: center;
+  margin-top: 12px; background: var(--tarjeta); border: 1px solid var(--borde);
+  border-radius: 12px; padding: 12px 16px; text-align: center;
 }
 .temporizador h2 { margin: 0 0 12px; }
 .tiempos { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
@@ -101,11 +123,11 @@ body.dibujando { overflow: hidden; }
 .tiempos button.activa { background: var(--acento); color: #fff; border-color: var(--acento); }
 .tiempos button:disabled { opacity: .5; cursor: default; }
 #reloj {
-  font-size: 3.6rem; font-weight: 700; margin: 12px 0 0;
+  font-size: 2.6rem; font-weight: 700; margin: 0;
   font-variant-numeric: tabular-nums;
 }
 #reloj.fin, #reloj.prorroga { color: var(--acento); }
-#fase { min-height: 1.4em; margin: 4px 0 10px; font-weight: 600; }
+#fase { min-height: 1.4em; margin: 2px 0 8px; font-weight: 600; }
 #fase small { font-weight: 400; }
 /* Barra dividida en fases: encaje 20 %, desarrollo 60 %, remates 20 % */
 .barra { display: flex; gap: 3px; }
@@ -159,33 +181,56 @@ th { color: var(--suave); font-weight: 600; }
 
   <main>
     <section id="vista-generar" class="vista">
-      <fieldset>
-        <legend>Nivel del prompt</legend>
-        <label><input type="radio" name="nivel" value="1" checked> Palabra <small>(más libre)</small></label>
-        <label><input type="radio" name="nivel" value="2"> Palabra + acción</label>
-        <label><input type="radio" name="nivel" value="3"> Palabra + acción + lugar <small>(más guiado)</small></label>
-      </fieldset>
-
-      <fieldset>
-        <legend>Extras</legend>
-        <label><input type="checkbox" id="con-estilo"> Estilo <small>(ej. "calavera kawaii")</small></label>
-        <label><input type="checkbox" id="con-personalidad"> Personalidad <small>(ej. "mesa malvada")</small></label>
-        <label><input type="checkbox" id="con-fusion"> Fusión <small>(dos palabras, ej. "mono payaso")</small></label>
-      </fieldset>
-
-      <fieldset>
-        <legend>Protagonista</legend>
-        <label><input type="radio" name="protagonista" value="todo" checked> Cualquiera</label>
-        <label><input type="radio" name="protagonista" value="humanos"> Humanos <small>(personas y personajes)</small></label>
-        <label><input type="radio" name="protagonista" value="hibridos"> Híbridos humanos <small>(ej. "mujer gato", "vikingo pulpo")</small></label>
-      </fieldset>
-
-      <fieldset>
-        <legend>Generador</legend>
-        <label><input type="radio" name="modo" value="todo" checked> Todo</label>
-        <label><input type="radio" name="modo" value="favoritos"> Mi zona <small>(a partir de mis favoritos)</small></label>
-        <label><input type="radio" name="modo" value="reto"> Reto <small>(evita lo que suelo dibujar)</small></label>
-      </fieldset>
+      <div class="ajustes">
+        <details>
+          <summary>Nivel <span id="res-nivel"></span></summary>
+          <div class="opciones">
+            <label><input type="radio" name="nivel" value="1" checked> Palabra <small>(más libre)</small></label>
+            <label><input type="radio" name="nivel" value="2"> Palabra + acción</label>
+            <label><input type="radio" name="nivel" value="3"> Palabra + acción + lugar <small>(más guiado)</small></label>
+          </div>
+        </details>
+        <details>
+          <summary>Extras <span id="res-extras"></span></summary>
+          <div class="opciones">
+            <label><input type="checkbox" id="con-estilo"> Estilo <small>(ej. "calavera kawaii")</small></label>
+            <label><input type="checkbox" id="con-personalidad"> Personalidad <small>(ej. "mesa malvada")</small></label>
+            <label><input type="checkbox" id="con-fusion"> Fusión <small>(dos palabras, ej. "mono payaso")</small></label>
+          </div>
+        </details>
+        <details>
+          <summary>Protagonista <span id="res-protagonista"></span></summary>
+          <div class="opciones">
+            <label><input type="radio" name="protagonista" value="todo" checked> Cualquiera</label>
+            <label><input type="radio" name="protagonista" value="humanos"> Humanos <small>(personas y personajes)</small></label>
+            <label><input type="radio" name="protagonista" value="hibridos"> Híbridos humanos <small>(ej. "mujer gato", "vikingo pulpo")</small></label>
+          </div>
+        </details>
+        <details>
+          <summary>Generador <span id="res-modo"></span></summary>
+          <div class="opciones">
+            <label><input type="radio" name="modo" value="todo" checked> Todo</label>
+            <label><input type="radio" name="modo" value="favoritos"> Mi zona <small>(a partir de mis favoritos)</small></label>
+            <label><input type="radio" name="modo" value="reto"> Reto <small>(evita lo que suelo dibujar)</small></label>
+          </div>
+        </details>
+        <details>
+          <summary>Tiempo <span id="res-tiempo"></span></summary>
+          <div class="opciones">
+            <div class="tiempos" id="tiempos">
+              <button data-min="auto" id="btn-auto">Auto</button>
+              <button data-min="1">1 min</button>
+              <button data-min="5">5 min</button>
+              <button data-min="10">10 min</button>
+              <button data-min="15">15 min</button>
+              <button data-min="20">20 min</button>
+              <button data-min="30">30 min</button>
+              <button data-min="60">1 h</button>
+            </div>
+            <small class="nota-auto">Auto: 5 min para palabra, 10 con acción y 20 con lugar.</small>
+          </div>
+        </details>
+      </div>
 
       <div class="tarjeta">
         <p id="prompt">Pulsa «Nuevo prompt»</p>
@@ -200,17 +245,6 @@ th { color: var(--suave); font-weight: 600; }
 
       <div id="hueco-generar"></div>
       <div class="temporizador" id="temporizador">
-        <h2>⏱️ Tiempo de dibujo</h2>
-        <div class="tiempos" id="tiempos">
-          <button data-min="auto" id="btn-auto">Auto</button>
-          <button data-min="1">1 min</button>
-          <button data-min="5">5 min</button>
-          <button data-min="10">10 min</button>
-          <button data-min="15">15 min</button>
-          <button data-min="20">20 min</button>
-          <button data-min="30">30 min</button>
-          <button data-min="60">1 h</button>
-        </div>
         <div id="reloj">05:00</div>
         <p id="fase"></p>
         <div class="barra">
@@ -1176,6 +1210,7 @@ function reiniciar() {
   avisosHechos = {}; datosSesion = null;
   mantenerPantalla(false);
   pintarReloj();
+  if (typeof pintarAjustes === "function") pintarAjustes();
 }
 
 function registrar(resultado) {
@@ -1193,6 +1228,37 @@ function registrar(resultado) {
   document.getElementById("fase").innerHTML = "Guardado en tu progreso 👍";
   pintarProgreso();
 }
+
+// =====================================================================
+//  RESUMEN DE AJUSTES (lo que se ve con los desplegables cerrados)
+// =====================================================================
+function textoOpcion(nombre) {
+  var el = document.querySelector("input[name=" + nombre + "]:checked");
+  return el ? el.nextSibling.textContent.trim() : "";
+}
+function pintarAjustes() {
+  document.getElementById("res-nivel").textContent = textoOpcion("nivel");
+  var extras = [["con-estilo", "Estilo"], ["con-personalidad", "Personalidad"], ["con-fusion", "Fusión"]]
+    .filter(function (x) { return document.getElementById(x[0]).checked; })
+    .map(function (x) { return x[1]; });
+  document.getElementById("res-extras").textContent = extras.length ? extras.join(", ") : "Ninguno";
+  document.getElementById("res-protagonista").textContent = textoOpcion("protagonista");
+  document.getElementById("res-modo").textContent = textoOpcion("modo");
+  document.getElementById("res-tiempo").textContent =
+    eleccion === "auto" ? "Auto (" + minutosBase() + " min)" : (eleccion >= 60 ? "1 h" : eleccion + " min");
+}
+Array.prototype.forEach.call(document.querySelectorAll(".ajustes input"), function (el) {
+  el.addEventListener("change", pintarAjustes);
+});
+// Al abrir un desplegable se cierran los demás
+Array.prototype.forEach.call(document.querySelectorAll(".ajustes details"), function (d) {
+  d.addEventListener("toggle", function () {
+    if (!d.open) return;
+    Array.prototype.forEach.call(document.querySelectorAll(".ajustes details"), function (o) {
+      if (o !== d) o.open = false;
+    });
+  });
+});
 
 // =====================================================================
 //  MODO DIBUJO
@@ -1342,7 +1408,7 @@ function pintarProgreso() {
 //  Al abrir la app (o volver a ella) comprueba si hay una versión nueva
 //  publicada y, si la hay, la carga. Cambia VERSION en cada cambio.
 // =====================================================================
-var VERSION = "2026-10-14.1";
+var VERSION = "2026-10-14.2";
 
 function buscarActualizacion() {
   if (location.protocol === "file:" || !window.fetch) return;
@@ -1363,6 +1429,7 @@ document.getElementById("version").textContent = VERSION;
 pintar();
 reiniciar();
 pintarProgreso();
+pintarAjustes();
 buscarActualizacion();
   </script>
 </body>
