@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Prompts de Dibujo</title>
+  <meta http-equiv="Cache-Control" content="no-cache">
   <meta name="theme-color" content="#e2584a">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
@@ -68,6 +69,7 @@ small { color: var(--suave); }
 .lista button { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--acento); }
 .ayuda { color: var(--suave); }
 .oculta { display: none !important; }
+.version { text-align: center; color: var(--suave); font-size: .75rem; margin-top: 32px; }
 .tab { padding: 10px 4px; font-size: .9rem; }
 /* Modo dibujo */
 #enfoque {
@@ -249,6 +251,7 @@ th { color: var(--suave); font-weight: 600; }
     <section id="vista-progreso" class="vista oculta">
       <div id="progreso-contenido"></div>
     </section>
+    <p class="version">Versión <span id="version"></span></p>
   </main>
 
   <!-- Modo dibujo: solo el prompt, el tiempo y las opciones básicas -->
@@ -1334,9 +1337,33 @@ function pintarProgreso() {
   };
 }
 
+// =====================================================================
+//  ACTUALIZACIONES
+//  Al abrir la app (o volver a ella) comprueba si hay una versión nueva
+//  publicada y, si la hay, la carga. Cambia VERSION en cada cambio.
+// =====================================================================
+var VERSION = "2026-10-14.1";
+
+function buscarActualizacion() {
+  if (location.protocol === "file:" || !window.fetch) return;
+  if (enMarcha() || enEnfoque) return;   // nunca mientras dibujas
+  fetch(location.pathname + "?comprobar=" + Date.now(), { cache: "no-store" })
+    .then(function (r) { return r.text(); })
+    .then(function (html) {
+      var m = html.match(/var VERSION = "([^"]+)"/);
+      if (m && m[1] !== VERSION) location.replace(location.pathname + "?v=" + encodeURIComponent(m[1]));
+    })
+    .catch(function () {});   // sin conexión: se usa la versión guardada
+}
+document.addEventListener("visibilitychange", function () {
+  if (document.visibilityState === "visible") buscarActualizacion();
+});
+document.getElementById("version").textContent = VERSION;
+
 pintar();
 reiniciar();
 pintarProgreso();
+buscarActualizacion();
   </script>
 </body>
 </html>
