@@ -40,6 +40,10 @@ está en ese único archivo.
   - *Prórroga*: al acabar, puedes pedir una sola vez un poco más de tiempo para cerrar
     (20 % del tiempo, entre 30 s y 5 min).
   - *Registro*: al terminar marcas «Lo acabé», «Me faltó poco» o «No llegué».
+- **Modo dibujo**: al pulsar *Empezar* se abre una pantalla limpia con solo el prompt,
+  el tiempo, ☆ y 👎. Con *✕ Salir* vuelves a la pantalla principal y el tiempo se pausa;
+  *Continuar* te devuelve al modo dibujo. Al marcar cómo te ha ido, vuelves automáticamente.
+- **Pestañas**: Generar, Historial, Favoritos y Progreso.
 - **Progreso**: estadísticas de tus dibujos por nivel y por tiempo, con consejos
   (por ejemplo, si en cierto nivel y tiempo casi nunca llegas).
 

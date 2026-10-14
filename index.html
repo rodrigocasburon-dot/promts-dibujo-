@@ -67,7 +67,25 @@ small { color: var(--suave); }
 .lista li div { display: flex; gap: 4px; flex-shrink: 0; }
 .lista button { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--acento); }
 .ayuda { color: var(--suave); }
-.oculta { display: none; }
+.oculta { display: none !important; }
+.tab { padding: 10px 4px; font-size: .9rem; }
+/* Modo dibujo */
+#enfoque {
+  position: fixed; inset: 0; z-index: 10; overflow-y: auto;
+  background: var(--fondo);
+}
+.enfoque-caja { max-width: 640px; margin: 0 auto; padding: 16px; display: flex; flex-direction: column; min-height: 100%; }
+#btn-salir {
+  align-self: flex-end; padding: 8px 14px; border-radius: 8px; cursor: pointer;
+  border: 1px solid var(--borde); background: var(--tarjeta); color: var(--texto); font-size: 1rem;
+}
+#enfoque-prompt { font-size: 2.2rem; font-weight: 700; text-align: center; margin: 32px 0 8px; }
+#enfoque-prompt::first-letter { text-transform: uppercase; }
+#enfoque .temporizador { background: none; border: none; padding: 0; }
+#enfoque .temporizador h2, #enfoque .tiempos { display: none; }
+#enfoque #reloj { font-size: 5rem; }
+#enfoque > .enfoque-caja > .acciones { margin-top: auto; padding-top: 24px; }
+body.dibujando { overflow: hidden; }
 .temporizador {
   margin-top: 20px; background: var(--tarjeta); border: 1px solid var(--borde);
   border-radius: 12px; padding: 16px; text-align: center;
@@ -131,6 +149,7 @@ th { color: var(--suave); font-weight: 600; }
     <h1>✏️ Prompts de Dibujo</h1>
     <nav>
       <button class="tab activa" data-vista="generar">Generar</button>
+      <button class="tab" data-vista="historial">Historial</button>
       <button class="tab" data-vista="favoritos">Favoritos <span id="contador-fav">0</span></button>
       <button class="tab" data-vista="progreso">Progreso</button>
     </nav>
@@ -177,7 +196,8 @@ th { color: var(--suave); font-weight: 600; }
         <button id="btn-no" disabled>👎</button>
       </div>
 
-      <div class="temporizador">
+      <div id="hueco-generar"></div>
+      <div class="temporizador" id="temporizador">
         <h2>⏱️ Tiempo de dibujo</h2>
         <div class="tiempos" id="tiempos">
           <button data-min="auto" id="btn-auto">Auto</button>
@@ -211,8 +231,10 @@ th { color: var(--suave); font-weight: 600; }
           </div>
         </div>
       </div>
+    </section>
 
-      <h2>Historial</h2>
+    <section id="vista-historial" class="vista oculta">
+      <p class="ayuda">Los últimos 20 prompts que has generado.</p>
       <ul id="historial" class="lista"></ul>
     </section>
 
@@ -228,6 +250,19 @@ th { color: var(--suave); font-weight: 600; }
       <div id="progreso-contenido"></div>
     </section>
   </main>
+
+  <!-- Modo dibujo: solo el prompt, el tiempo y las opciones básicas -->
+  <div id="enfoque" class="oculta">
+    <div class="enfoque-caja">
+      <button id="btn-salir">✕ Salir</button>
+      <p id="enfoque-prompt"></p>
+      <div id="hueco-enfoque"></div>
+      <div class="acciones">
+        <button id="enfoque-fav">☆ Favorito</button>
+        <button id="enfoque-no">👎 No me gusta</button>
+      </div>
+    </div>
+  </div>
 
   <script>
 // =====================================================================
@@ -898,6 +933,9 @@ function pintar() {
     btnFav.textContent = esFavorito(actual) ? "★ Favorito" : "☆ Favorito";
   }
   btnNo.disabled = !esCompleto(actual);
+  if (actual) document.getElementById("enfoque-prompt").textContent = texto(actual);
+  document.getElementById("enfoque-fav").textContent = actual && esFavorito(actual) ? "★ Favorito" : "☆ Favorito";
+  document.getElementById("enfoque-no").disabled = !esCompleto(actual);
   btnNo.title = esCompleto(actual)
     ? "No volverá a salir esta combinación de palabra + acción + lugar"
     : "Solo disponible en el nivel palabra + acción + lugar";
@@ -1148,11 +1186,46 @@ function registrar(resultado) {
   }].concat(sesiones).slice(0, 500);
   guardar(CLAVE_SES, sesiones);
   reiniciar();
+  if (enEnfoque) salirEnfoque();
   document.getElementById("fase").innerHTML = "Guardado en tu progreso 👍";
   pintarProgreso();
 }
 
-document.getElementById("btn-tiempo").onclick = empezarOPausar;
+// =====================================================================
+//  MODO DIBUJO
+// =====================================================================
+var enEnfoque = false;
+
+function entrarEnfoque() {
+  if (!actual) generar();
+  document.getElementById("hueco-enfoque").appendChild(document.getElementById("temporizador"));
+  document.getElementById("enfoque").classList.remove("oculta");
+  document.body.classList.add("dibujando");
+  enEnfoque = true;
+  pintar();
+}
+
+function salirEnfoque() {
+  if (enMarcha()) empezarOPausar();   // al salir, el tiempo se pausa
+  var hueco = document.getElementById("hueco-generar");
+  hueco.parentNode.insertBefore(document.getElementById("temporizador"), hueco.nextSibling);
+  document.getElementById("enfoque").classList.add("oculta");
+  document.body.classList.remove("dibujando");
+  enEnfoque = false;
+}
+
+document.getElementById("btn-tiempo").onclick = function () {
+  if (!enEnfoque && !enMarcha()) entrarEnfoque();
+  empezarOPausar();
+};
+document.getElementById("btn-salir").onclick = salirEnfoque;
+document.getElementById("enfoque-fav").onclick = function () { if (actual) alternarFavorito(actual); };
+// 👎 en modo dibujo: descarta la combinación, trae otra y el tiempo vuelve a empezar
+document.getElementById("enfoque-no").onclick = function () {
+  if (!esCompleto(actual)) return;
+  descartar(actual);
+  reiniciar();
+};
 document.getElementById("btn-reiniciar").onclick = reiniciar;
 document.getElementById("btn-prorroga").onclick = usarProrroga;
 Array.prototype.forEach.call(document.querySelectorAll(".resultados button"), function (b) {
