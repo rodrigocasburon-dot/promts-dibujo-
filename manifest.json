@@ -1,6 +1,6 @@
 {
-  "name": "Prompts de Dibujo",
-  "short_name": "Prompts",
+  "name": "Dibujapp",
+  "short_name": "Dibujapp",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#faf7f2",

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Prompts de Dibujo</title>
+  <title>Dibujapp</title>
   <script>
     // Aplica el tema guardado antes de pintar, para que no parpadee
     try { document.documentElement.dataset.tema = JSON.parse(localStorage.getItem("prompts-dibujo:tema")) || "auto"; } catch (e) {}
@@ -13,7 +13,7 @@
   <meta name="theme-color" content="#e2584a">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="Prompts">
+  <meta name="apple-mobile-web-app-title" content="Dibujapp">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="icono-192.png">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -110,6 +110,7 @@ h1 { margin: 0; }
   text-shadow: none; filter: drop-shadow(0 1px 0 rgba(0, 0, 0, .55));
   overflow: hidden; text-overflow: ellipsis;
 }
+.lapiz .grabado { font-size: 1rem; letter-spacing: .22em; }
 .lapiz .marca { font-size: .68rem; }
 .lapiz .punta { width: 40px; height: 34px; flex-shrink: 0; display: block; }
 /* Móviles estrechos: se quita «HB» y se aprietan las letras */
@@ -407,7 +408,7 @@ th { color: var(--suave); font-weight: 600; }
       <!-- Título grabado en un lápiz horizontal -->
       <h1 class="lapiz">
         <span class="tapa"></span>
-        <span class="cuerpo"><span class="grabado">Prompts de Dibujo</span><span class="marca">HB</span></span>
+        <span class="cuerpo"><span class="grabado">Dibujapp</span><span class="marca">HB</span></span>
         <svg class="punta" viewBox="0 0 40 34" preserveAspectRatio="none" aria-hidden="true">
           <defs>
             <linearGradient id="madera" x1="0" y1="0" x2="0" y2="1">
@@ -1775,7 +1776,7 @@ function pintarProgreso() {
 //  Al abrir la app (o volver a ella) comprueba si hay una versión nueva
 //  publicada y, si la hay, la carga. Cambia VERSION en cada cambio.
 // =====================================================================
-var VERSION = "2026-10-14.5";
+var VERSION = "2026-10-14.6";
 
 function buscarActualizacion() {
   if (location.protocol === "file:" || !window.fetch) return;

@@ -1,6 +1,6 @@
-# ✏️ Prompts de Dibujo
+# ✏️ Dibujapp
 
-Generador de ideas para dibujar, con niveles de dificultad y favoritos.
+Dibujapp: generador de ideas para dibujar, con niveles de dificultad y favoritos.
 
 ## Cómo usarla
 
