@@ -15,6 +15,9 @@ está en ese único archivo.
   - *Estilo*: cómo se ve, por ejemplo «calavera kawaii».
   - *Personalidad*: qué carácter tiene, por ejemplo «mesa malvada». Tienes que transmitir
     esa personalidad en el dibujo.
+  - *Fusión*: mezcla dos palabras en un solo ser, por ejemplo «mono payaso» o «calavera
+    perro». La segunda palabra siempre es un animal, personaje o criatura que presta sus
+    rasgos a la primera, y los personajes concuerdan en género («gato brujo», «rana bruja»).
 - **Favoritos (☆/★)**: marca los prompts que te gustan.
 - **No me gusta (👎)**: solo para combinaciones completas *palabra + acción + lugar*.
   Esa combinación no vuelve a salir, pero las palabras sueltas sí. Puedes deshacerlo en la
@@ -43,7 +46,9 @@ navegación, o usas otro dispositivo, no aparecerán).
 Abre `index.html` con un editor de texto y busca la sección «LISTAS DE PALABRAS».
 Hay cinco listas: `SUSTANTIVOS`, `ACCIONES`, `LUGARES`, `ESTILOS` y `PERSONALIDADES`.
 En los sustantivos, `g` indica el género (`"m"` o `"f"`) para que el estilo concuerde
-(«calavera malvada», «gato malvado»).
+(«calavera malvada», «gato malvado»), y `k` el tipo (animal, personaje, criatura u
+objeto), que decide qué fusiones tienen sentido. Las reglas están en `FUSIONES`, y las
+parejas demasiado parecidas en `PAREJAS_EVITAR`.
 
 ## Tenerla en el móvil
 

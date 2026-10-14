@@ -149,6 +149,7 @@ th { color: var(--suave); font-weight: 600; }
         <legend>Extras</legend>
         <label><input type="checkbox" id="con-estilo"> Estilo <small>(ej. "calavera kawaii")</small></label>
         <label><input type="checkbox" id="con-personalidad"> Personalidad <small>(ej. "mesa malvada")</small></label>
+        <label><input type="checkbox" id="con-fusion"> Fusión <small>(dos palabras, ej. "mono payaso")</small></label>
       </fieldset>
 
       <fieldset>
@@ -227,32 +228,51 @@ th { color: var(--suave); font-weight: 600; }
 // =====================================================================
 // Listas de elementos para generar prompts.
 // Puedes añadir o quitar elementos libremente.
-// Sustantivos: g = género ("m" masculino, "f" femenino) para concordar con el estilo.
-
+// Sustantivos:
+//   g = género ("m" masculino, "f" femenino) para concordar con estilo y personalidad.
+//   k = tipo, para que las fusiones tengan sentido:
+//       "a" animal, "p" personaje, "c" criatura fantástica, "o" objeto / planta / naturaleza.
+//       En una fusión («calavera perro», «mono payaso») la segunda palabra solo puede ser
+//       un animal, personaje o criatura: es la que presta sus rasgos a la primera.
+//   m / f = forma masculina / femenina de un personaje («gato brujo», «rana bruja»).
 var SUSTANTIVOS = [
-  { t: "calavera", g: "f" }, { t: "gato", g: "m" }, { t: "dragón", g: "m" },
-  { t: "bruja", g: "f" }, { t: "robot", g: "m" }, { t: "seta", g: "f" },
-  { t: "astronauta", g: "m" }, { t: "pulpo", g: "m" }, { t: "tetera", g: "f" },
-  { t: "caballero", g: "m" }, { t: "sirena", g: "f" }, { t: "zorro", g: "m" },
-  { t: "fantasma", g: "m" }, { t: "búho", g: "m" }, { t: "planta carnívora", g: "f" },
-  { t: "dinosaurio", g: "m" }, { t: "abuela", g: "f" }, { t: "pez globo", g: "m" },
-  { t: "vampiro", g: "m" }, { t: "rana", g: "f" }, { t: "faro", g: "m" },
-  { t: "mago", g: "m" }, { t: "ballena", g: "f" }, { t: "cactus", g: "m" },
-  { t: "samurái", g: "m" }, { t: "mariposa", g: "f" }, { t: "oso", g: "m" },
-  { t: "bicicleta", g: "f" }, { t: "cuervo", g: "m" }, { t: "princesa", g: "f" },
-  { t: "esqueleto", g: "m" }, { t: "caracol", g: "m" }, { t: "lámpara", g: "f" },
-  { t: "pirata", g: "m" }, { t: "conejo", g: "m" }, { t: "medusa", g: "f" },
-  { t: "golem", g: "m" }, { t: "tortuga", g: "f" }, { t: "payaso", g: "m" },
-  { t: "zapato", g: "m" }, { t: "ciervo", g: "m" }, { t: "guerrera", g: "f" },
-  { t: "alien", g: "m" }, { t: "lobo", g: "m" }, { t: "casa", g: "f" },
-  { t: "unicornio", g: "m" }, { t: "abeja", g: "f" }, { t: "minotauro", g: "m" },
-  { t: "taza de café", g: "f" }, { t: "perro", g: "m" }, { t: "hada", g: "f" },
-  { t: "cocinero", g: "m" }, { t: "serpiente", g: "f" }, { t: "árbol", g: "m" },
-  { t: "momia", g: "f" }, { t: "pingüino", g: "m" }, { t: "nube", g: "f" },
-  { t: "ninja", g: "m" }, { t: "manzana", g: "f" }, { t: "demonio", g: "m" },
-  { t: "jirafa", g: "f" }, { t: "anciano", g: "m" }, { t: "llave", g: "f" },
-  { t: "cangrejo", g: "m" }, { t: "gárgola", g: "f" }, { t: "tren", g: "m" },
-  { t: "sapo", g: "m" }, { t: "luna", g: "f" }, { t: "escarabajo", g: "m" },
+  // Animales
+  { t: "gato", g: "m", k: "a" }, { t: "perro", g: "m", k: "a" }, { t: "mono", g: "m", k: "a" },
+  { t: "pulpo", g: "m", k: "a" }, { t: "zorro", g: "m", k: "a" }, { t: "búho", g: "m", k: "a" },
+  { t: "rana", g: "f", k: "a" }, { t: "ballena", g: "f", k: "a" }, { t: "oso", g: "m", k: "a" },
+  { t: "mariposa", g: "f", k: "a" }, { t: "cuervo", g: "m", k: "a" }, { t: "conejo", g: "m", k: "a" },
+  { t: "medusa", g: "f", k: "a" }, { t: "tortuga", g: "f", k: "a" }, { t: "ciervo", g: "m", k: "a" },
+  { t: "lobo", g: "m", k: "a" }, { t: "abeja", g: "f", k: "a" }, { t: "pingüino", g: "m", k: "a" },
+  { t: "serpiente", g: "f", k: "a" }, { t: "jirafa", g: "f", k: "a" }, { t: "cangrejo", g: "m", k: "a" },
+  { t: "sapo", g: "m", k: "a" }, { t: "escarabajo", g: "m", k: "a" }, { t: "caracol", g: "m", k: "a" },
+  { t: "pez globo", g: "m", k: "a" }, { t: "dinosaurio", g: "m", k: "a" }, { t: "tiburón", g: "m", k: "a" },
+  { t: "cocodrilo", g: "m", k: "a" }, { t: "murciélago", g: "m", k: "a" }, { t: "gallina", g: "f", k: "a" },
+  { t: "cerdo", g: "m", k: "a" }, { t: "elefante", g: "m", k: "a" }, { t: "araña", g: "f", k: "a" },
+  { t: "mapache", g: "m", k: "a" }, { t: "erizo", g: "m", k: "a" }, { t: "oveja", g: "f", k: "a" },
+  // Personajes
+  { t: "bruja", g: "f", k: "p", m: "brujo" }, { t: "astronauta", g: "m", k: "p" },
+  { t: "caballero", g: "m", k: "p" }, { t: "sirena", g: "f", k: "p", m: "tritón" },
+  { t: "mago", g: "m", k: "p", f: "maga" }, { t: "samurái", g: "m", k: "p" },
+  { t: "princesa", g: "f", k: "p", m: "príncipe" }, { t: "pirata", g: "m", k: "p" },
+  { t: "payaso", g: "m", k: "p", f: "payasa" }, { t: "guerrera", g: "f", k: "p", m: "guerrero" },
+  { t: "hada", g: "f", k: "p" }, { t: "cocinero", g: "m", k: "p", f: "cocinera" },
+  { t: "ninja", g: "m", k: "p" }, { t: "vaquero", g: "m", k: "p", f: "vaquera" },
+  { t: "rey", g: "m", k: "p", f: "reina" }, { t: "detective", g: "m", k: "p" },
+  { t: "bombero", g: "m", k: "p", f: "bombera" }, { t: "monje", g: "m", k: "p", f: "monja" },
+  { t: "abuela", g: "f", k: "o" }, { t: "anciano", g: "m", k: "o" },   // mejor como base que como fusión
+  // Criaturas
+  { t: "calavera", g: "f", k: "c" }, { t: "dragón", g: "m", k: "c" }, { t: "robot", g: "m", k: "c" },
+  { t: "fantasma", g: "m", k: "c" }, { t: "vampiro", g: "m", k: "c" }, { t: "esqueleto", g: "m", k: "c" },
+  { t: "golem", g: "m", k: "c" }, { t: "unicornio", g: "m", k: "c" }, { t: "minotauro", g: "m", k: "c" },
+  { t: "alien", g: "m", k: "c" }, { t: "demonio", g: "m", k: "c" }, { t: "momia", g: "f", k: "c" },
+  { t: "gárgola", g: "f", k: "c" }, { t: "zombi", g: "m", k: "c" }, { t: "yeti", g: "m", k: "c" },
+  // Objetos, plantas y naturaleza
+  { t: "seta", g: "f", k: "o" }, { t: "tetera", g: "f", k: "o" }, { t: "planta carnívora", g: "f", k: "o" },
+  { t: "faro", g: "m", k: "o" }, { t: "cactus", g: "m", k: "o" }, { t: "bicicleta", g: "f", k: "o" },
+  { t: "lámpara", g: "f", k: "o" }, { t: "zapato", g: "m", k: "o" }, { t: "casa", g: "f", k: "o" },
+  { t: "taza de café", g: "f", k: "o" }, { t: "árbol", g: "m", k: "o" }, { t: "nube", g: "f", k: "o" },
+  { t: "manzana", g: "f", k: "o" }, { t: "llave", g: "f", k: "o" }, { t: "tren", g: "m", k: "o" },
+  { t: "luna", g: "f", k: "o" }, { t: "paraguas", g: "m", k: "o" }, { t: "reloj", g: "m", k: "o" },
 ];
 
 var ACCIONES = [
@@ -362,8 +382,41 @@ function concordar(mapa, clave, sustantivo) {
   return formas[s && s.g === "f" ? 1 : 0];
 }
 
+// ---------- Fusiones ----------
+// Qué tipos de segunda palabra admite cada tipo de base (ver «k» en SUSTANTIVOS)
+var FUSIONES = {
+  a: "apc",   // animal: «mono payaso», «perro calavera», «gato pulpo»
+  c: "apc",   // criatura: «calavera perro», «dragón pirata»
+  p: "ac",    // personaje: «pirata pulpo», «bruja fantasma»
+  o: "ac",    // objeto/planta: «tetera pulpo», «tren dragón»
+};
+// Parejas demasiado parecidas para ser una fusión interesante
+var PAREJAS_EVITAR = [
+  ["calavera", "esqueleto"], ["rana", "sapo"], ["perro", "lobo"], ["momia", "zombi"],
+  ["zombi", "esqueleto"], ["cuervo", "búho"], ["vampiro", "murciélago"], ["golem", "robot"],
+];
+function parejaEvitada(a, b) {
+  return PAREJAS_EVITAR.some(function (x) {
+    return (x[0] === a && x[1] === b) || (x[0] === b && x[1] === a);
+  });
+}
+// La segunda palabra es un ser de una sola palabra que encaja con el tipo de la base
+function puedeFusionar(base, rasgo) {
+  var b = sustPorTexto[base], r = sustPorTexto[rasgo];
+  if (!b || !r || rasgo === base || rasgo.indexOf(" ") !== -1) return false;
+  return FUSIONES[b.k].indexOf(r.k) !== -1 && !parejaEvitada(base, rasgo);
+}
+// Los personajes concuerdan en género con la palabra base: «gato brujo», «rana bruja»
+function formaFusion(rasgo, base) {
+  var r = sustPorTexto[rasgo], b = sustPorTexto[base];
+  if (!r || r.k !== "p") return rasgo;
+  if (b && b.g === "f") return r.g === "f" ? r.t : (r.f || r.t);
+  return r.g === "m" ? r.t : (r.m || r.t);
+}
+
 function texto(p) {
   var partes = [p.s];
+  if (p.s2) partes.push(formaFusion(p.s2, p.s));
   if (p.c) partes.push(concordar(persPorClave, p.c, p.s));
   if (p.e) partes.push(concordar(estiloPorClave, p.e, p.s));
   if (p.a) partes.push(p.a);
@@ -375,7 +428,7 @@ function esFavorito(p) { return favoritos.some(function (f) { return mismo(f, p)
 
 // 👎 solo aplica a combinaciones completas palabra + acción + lugar
 function esCompleto(p) { return !!(p && p.a && p.l); }
-function claveCombo(p) { return p.s + "|" + p.a + "|" + p.l; }
+function claveCombo(p) { return p.s + (p.s2 ? "+" + p.s2 : "") + "|" + p.a + "|" + p.l; }
 function esDescartado(p) {
   return esCompleto(p) && descartados.some(function (d) { return claveCombo(d) === claveCombo(p); });
 }
@@ -384,7 +437,11 @@ function esDescartado(p) {
 function elementosFavoritos(campo) {
   var vistos = [];
   favoritos.forEach(function (f) {
-    if (f[campo] && vistos.indexOf(f[campo]) === -1) vistos.push(f[campo]);
+    // Las dos palabras de una fusión cuentan como sustantivos
+    var valores = campo === "s" ? [f.s, f.s2] : [f[campo]];
+    valores.forEach(function (v) {
+      if (v && vistos.indexOf(v) === -1) vistos.push(v);
+    });
   });
   return vistos;
 }
@@ -414,6 +471,7 @@ function generar() {
   var nivel = Number(valor("nivel"));
   var conEstilo = document.getElementById("con-estilo").checked;
   var conPers = document.getElementById("con-personalidad").checked;
+  var conFusion = document.getElementById("con-fusion").checked;
   var modo = valor("modo");
   var avisos = [];
   var p;
@@ -422,12 +480,22 @@ function generar() {
   for (var i = 0; i < 50; i++) {
     p = {
       s: azar(bolsa("s", SUSTANTIVOS.map(function (x) { return x.t; }), modo, avisos, "sustantivos")),
+      s2: null,
       e: conEstilo ? azar(bolsa("e", ESTILOS.map(function (x) { return x[0]; }), modo, avisos, "estilos")) : null,
       c: conPers ? azar(bolsa("c", PERSONALIDADES.map(function (x) { return x[0]; }), modo, avisos, "personalidades")) : null,
       a: nivel >= 2 ? azar(bolsa("a", ACCIONES, modo, avisos, "acciones")) : null,
       l: nivel >= 3 ? azar(bolsa("l", LUGARES, modo, avisos, "lugares")) : null,
     };
-    if (!esDescartado(p) && !(actual && mismo(p, actual))) break;
+    if (conFusion) {
+      var base = p.s;
+      var rasgos = SUSTANTIVOS.map(function (x) { return x.t; })
+        .filter(function (t) { return puedeFusionar(base, t); });
+      var opciones = bolsa("s", rasgos, modo, avisos, "sustantivos")
+        .filter(function (t) { return puedeFusionar(base, t); });
+      p.s2 = azar(opciones.length ? opciones : rasgos);
+    }
+    var repetido = p.e && (p.e === p.s || p.e === p.s2);   // evita «zombi zombi»
+    if (!repetido && !esDescartado(p) && !(actual && mismo(p, actual))) break;
   }
 
   actual = p;
@@ -449,7 +517,7 @@ function alternarFavorito(p) {
 
 function descartar(p) {
   if (!esCompleto(p) || esDescartado(p)) return;
-  descartados = [{ s: p.s, a: p.a, l: p.l }].concat(descartados);
+  descartados = [{ s: p.s, s2: p.s2 || null, a: p.a, l: p.l }].concat(descartados);
   favoritos = favoritos.filter(function (f) { return !(esCompleto(f) && claveCombo(f) === claveCombo(p)); });
   historial = historial.filter(function (h) { return !(esCompleto(h) && claveCombo(h) === claveCombo(p)); });
   guardar(CLAVE_DESC, descartados);
