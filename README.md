@@ -84,6 +84,10 @@ Cada vez que se suban cambios al repositorio, la app del móvil se actualiza sol
 - **Modo dibujo**: el reloj se va dibujando a lápiz sobre el papel, con un lápiz que
   sigue el trazo y los colores de las fases.
 - **Texto a lápiz** en toda la app y título grabado en un lápiz verde con letras doradas.
+- **Botones post-it**: cada botón es un papelito adhesivo de color, y las pestañas son
+  banderitas adhesivas.
+- **Letras con textura de grafito** (`recursos/grano-grafito.png`); en el tema Pizarra
+  parecen tiza.
 - **Celebración** al marcar «Lo acabé» y **racha** de días seguidos en Progreso.
 
 ## Recursos

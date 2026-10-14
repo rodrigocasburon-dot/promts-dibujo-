@@ -152,7 +152,7 @@ nav { display: flex; gap: 6px; }
   border: 1.5px solid var(--borde); background: var(--tarjeta); color: var(--texto);
 }
 .tab.activa { background: var(--trazo); color: var(--fondo); border-color: var(--trazo); }
-.tab span { font-size: .8rem; opacity: .8; }
+.tab small { font-size: .8rem; }
 
 /* ---------- Ajustes desplegables ---------- */
 .ajustes {
@@ -369,6 +369,70 @@ th { color: var(--suave); font-weight: 600; }
   margin-top: 20px; background: none; border: 1.5px solid var(--borde); color: var(--suave);
   padding: 8px 12px; border-radius: 8px; cursor: pointer;
 }
+
+/* =====================================================================
+   BOTONES POST-IT
+   ===================================================================== */
+.acciones button, .resultados button, #btn-prorroga, #btn-salir, .tab, .tiempos button, .tema {
+  --papel: var(--postit-1);
+  --tinta: var(--postit-texto);
+  border: none !important; color: var(--postit-texto);
+  background: var(--papel) linear-gradient(rgba(0,0,0,.06), rgba(0,0,0,0) 40%) !important;
+  border-radius: 2px 2px 3px 14px / 2px 2px 3px 5px !important;
+  box-shadow: 0 1px 1px rgba(0,0,0,.1), 0 7px 10px -6px rgba(0,0,0,.45);
+  transform: rotate(var(--giro-boton, -1deg));
+  transition: transform .12s, box-shadow .12s;
+}
+.acciones button:active, .resultados button:active, #btn-prorroga:active, #btn-salir:active, .tiempos button:active {
+  transform: rotate(var(--giro-boton, -1deg)) translateY(2px);
+  box-shadow: 0 1px 1px rgba(0,0,0,.1), 0 3px 5px -3px rgba(0,0,0,.45);
+}
+/* Colores de cada papelito */
+#btn-generar, #btn-tiempo, .resultados [data-r="acabe"] { --papel: #a7dc8f; }
+#btn-fav, #enfoque-fav, .resultados [data-r="casi"] { --papel: var(--postit-1); --giro-boton: 1.2deg; }
+#btn-no, #enfoque-no, .resultados [data-r="no"] { --papel: #ffc58f; --giro-boton: -1.6deg; }
+#btn-reiniciar { --papel: var(--postit-3); --giro-boton: 1deg; }
+#btn-salir { --papel: #f4f1ea; --giro-boton: 2deg; }
+#btn-prorroga { --papel: #d9bff2; --giro-boton: -.6deg; }
+.acciones .principal { color: var(--postit-texto); background-image: linear-gradient(rgba(0,0,0,.06), rgba(0,0,0,0) 40%) !important; text-shadow: none; }
+.tema { --papel: var(--postit-1); --giro-boton: 3deg; }
+.tema .ico { color: var(--postit-texto); }
+/* Botones de tiempo: notitas pequeñas */
+.tiempos button { --papel: #fdf3b5; --giro-boton: -1.5deg; padding: 7px 11px; }
+.tiempos button:nth-child(even) { --giro-boton: 1.5deg; }
+.tiempos button.activa { --papel: #a7dc8f; }
+/* Pestañas: banderitas adhesivas de colores */
+nav { gap: 5px; }
+.tab { filter: saturate(.75) brightness(.93); transform: translateY(3px) rotate(var(--giro-boton, -1deg)); box-shadow: 0 4px 6px -5px rgba(0,0,0,.45); }
+.tab[data-vista="generar"] { --papel: #a7dc8f; --giro-boton: -1.5deg; }
+.tab[data-vista="historial"] { --papel: var(--postit-3); --giro-boton: 1deg; }
+.tab[data-vista="favoritos"] { --papel: var(--postit-1); --giro-boton: -.8deg; }
+.tab[data-vista="progreso"] { --papel: var(--postit-2); --giro-boton: 1.4deg; }
+.tab.activa {
+  filter: none; color: var(--postit-texto);
+  transform: translateY(0) rotate(var(--giro-boton)) scale(1.04);
+  box-shadow: 0 1px 1px rgba(0,0,0,.1), 0 8px 12px -6px rgba(0,0,0,.5);
+}
+.acciones button:disabled { opacity: 1; filter: grayscale(.85) brightness(1.05); box-shadow: 0 3px 5px -4px rgba(0,0,0,.4); }
+.acciones button:disabled > * { opacity: .45; }
+
+/* =====================================================================
+   TEXTURA DE GRAFITO EN LAS LETRAS
+   El texto se rellena con el color del lápiz más una textura de grano,
+   en vez de un color liso. Los iconos mantienen su color (currentColor).
+   ===================================================================== */
+button > span, summary, .opciones label, #reloj, #fase, h2, .ayuda, .lista li > span,
+th, td, .cifra b, .cifra span, .version, .nota-auto, #final p, .consejo span {
+  background-image: url("recursos/grano-grafito.png"),
+    linear-gradient(var(--tinta, var(--texto)), var(--tinta, var(--texto)));
+  background-size: 64px 64px, auto;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: none;
+}
+#reloj.fin, #reloj.prorroga { --tinta: var(--acento); }
+.cifra.racha b { --tinta: var(--acento); }
+.consejo { --tinta: var(--postit-texto); }
   </style>
 </head>
 <body>
@@ -438,10 +502,10 @@ th { color: var(--suave); font-weight: 600; }
       </label>
     </div>
     <nav>
-      <button class="tab activa" data-vista="generar">Generar</button>
-      <button class="tab" data-vista="historial">Historial</button>
-      <button class="tab" data-vista="favoritos">Favoritos <span id="contador-fav">0</span></button>
-      <button class="tab" data-vista="progreso">Progreso</button>
+      <button class="tab activa" data-vista="generar"><span>Generar</span></button>
+      <button class="tab" data-vista="historial"><span>Historial</span></button>
+      <button class="tab" data-vista="favoritos"><span>Favoritos <small id="contador-fav">0</small></span></button>
+      <button class="tab" data-vista="progreso"><span>Progreso</span></button>
     </nav>
   </header>
 
@@ -484,14 +548,14 @@ th { color: var(--suave); font-weight: 600; }
           <summary>Tiempo <span id="res-tiempo"></span></summary>
           <div class="opciones">
             <div class="tiempos" id="tiempos">
-              <button data-min="auto" id="btn-auto">Auto</button>
-              <button data-min="1">1 min</button>
-              <button data-min="5">5 min</button>
-              <button data-min="10">10 min</button>
-              <button data-min="15">15 min</button>
-              <button data-min="20">20 min</button>
-              <button data-min="30">30 min</button>
-              <button data-min="60">1 h</button>
+              <button data-min="auto" id="btn-auto"><span>Auto</span></button>
+              <button data-min="1"><span>1 min</span></button>
+              <button data-min="5"><span>5 min</span></button>
+              <button data-min="10"><span>10 min</span></button>
+              <button data-min="15"><span>15 min</span></button>
+              <button data-min="20"><span>20 min</span></button>
+              <button data-min="30"><span>30 min</span></button>
+              <button data-min="60"><span>1 h</span></button>
             </div>
             <small class="nota-auto">Auto: 5 min para palabra, 10 con acción y 20 con lugar.</small>
           </div>
@@ -552,9 +616,9 @@ th { color: var(--suave); font-weight: 600; }
           <button id="btn-prorroga" class="principal"></button>
           <p>¿Cómo ha ido?</p>
           <div class="resultados">
-            <button data-r="acabe"><svg class="ico"><use href="#i-check"/></svg>Lo acabé</button>
-            <button data-r="casi"><svg class="ico"><use href="#i-casi"/></svg>Me faltó poco</button>
-            <button data-r="no"><svg class="ico"><use href="#i-arena"/></svg>No llegué</button>
+            <button data-r="acabe"><svg class="ico"><use href="#i-check"/></svg><span>Lo acabé</span></button>
+            <button data-r="casi"><svg class="ico"><use href="#i-casi"/></svg><span>Me faltó poco</span></button>
+            <button data-r="no"><svg class="ico"><use href="#i-arena"/></svg><span>No llegué</span></button>
           </div>
         </div>
       </div>
@@ -1406,8 +1470,8 @@ function pintarReloj() {
     b.classList.toggle("activa", b.dataset.min === String(eleccion));
     b.disabled = ocupado;
   });
-  document.getElementById("btn-auto").textContent =
-    eleccion === "auto" ? "Auto (" + minutosBase() + " min)" : "Auto";
+  document.getElementById("btn-auto").innerHTML =
+    "<span>" + (eleccion === "auto" ? "Auto (" + minutosBase() + " min)" : "Auto") + "</span>";
 
   document.getElementById("final").classList.toggle("oculta", !esperandoResultado);
   var btnP = document.getElementById("btn-prorroga");
@@ -1779,7 +1843,7 @@ function pintarProgreso() {
 //  Al abrir la app (o volver a ella) comprueba si hay una versión nueva
 //  publicada y, si la hay, la carga. Cambia VERSION en cada cambio.
 // =====================================================================
-var VERSION = "2026-10-14.7";
+var VERSION = "2026-10-14.8";
 
 function buscarActualizacion() {
   if (location.protocol === "file:" || !window.fetch) return;
