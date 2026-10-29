@@ -1269,6 +1269,10 @@ function valor(nombre) {
 }
 
 // ---------- Generar ----------
+// Personas genéricas que más se usan en los híbridos humanos, y con qué frecuencia salen
+var PERSONAS_GENERICAS = ["hombre", "mujer", "chico", "chica"];
+var PESO_PERSONAS_GENERICAS = 0.4;
+
 // Abre el bloc: la tapa se levanta sobre las anillas y aparece la hoja
 function abrirBloc() {
   if (!document.body.classList.contains("cerrado")) return;
@@ -1290,7 +1294,9 @@ function generar() {
   var bases = SUSTANTIVOS.filter(function (x) {
     return protagonista === "todo" || x.k === "p" || x.k === "h";
   }).map(function (x) { return x.t; });
-  var esBase = function (t) { return bases.indexOf(t) !== -1; };
+  // En «Híbridos humanos», el 40 % de las veces la base es una persona genérica
+  // («mujer gato», «hombre polilla») y el resto un personaje («vikingo pulpo»)
+  var genericas = PERSONAS_GENERICAS.filter(function (t) { return bases.indexOf(t) !== -1; });
   var avisos = [];
   var p;
 
@@ -1298,8 +1304,10 @@ function generar() {
   for (var i = 0; i < 50; i++) {
     p = {
       s: (function () {
-        var opciones = bolsa("s", bases, modo, avisos, "sustantivos").filter(esBase);
-        return azar(opciones.length ? opciones : bases);
+        var grupo = protagonista === "hibridos" && Math.random() < PESO_PERSONAS_GENERICAS ? genericas : bases;
+        var opciones = bolsa("s", grupo, modo, avisos, "sustantivos")
+          .filter(function (t) { return grupo.indexOf(t) !== -1; });
+        return azar(opciones.length ? opciones : grupo);
       })(),
       s2: null,
       e: conEstilo ? azar(bolsa("e", ESTILOS.map(function (x) { return x[0]; }), modo, avisos, "estilos")) : null,
@@ -1924,7 +1932,7 @@ function pintarProgreso() {
 //  Al abrir la app (o volver a ella) comprueba si hay una versión nueva
 //  publicada y, si la hay, la carga. Cambia VERSION en cada cambio.
 // =====================================================================
-var VERSION = "2026-10-15.1";
+var VERSION = "2026-10-29.1";
 
 function buscarActualizacion() {
   if (location.protocol === "file:" || !window.fetch) return;
